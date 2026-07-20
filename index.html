@@ -476,6 +476,7 @@ h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
 .pp-season { margin: 0; }
 .pp-season-header { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
 .pp-season-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface); border-radius: var(--radius-sm); margin-bottom: 4px; font-size: 0.82rem; gap: 12px; }
+.pp-season-row.subtotal { background: var(--bg); font-weight: 600; border-radius: 8px; margin-top: 4px; margin-bottom: 16px; }
 .pp-season-row.total { background: var(--primary); color: var(--on-primary); font-weight: 700; border-radius: 10px; margin-top: 8px; }
 .pp-season-row.total .pp-season-stat { color: rgba(255,255,255,0.7); }
 .pp-season-row.total .pp-season-stat strong { color: #fff; }
@@ -519,7 +520,7 @@ h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
 .fw-700 { font-weight: 700; }
 
 @media (max-width: 375px) {
-  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .stat-grid:not(.stat-grid-3):not(.stat-grid-2) { grid-template-columns: repeat(2, 1fr); }
   .bottomnav button { font-size: 0.55rem; }
   .bottomnav button .nav-icon { font-size: 1rem; }
 }
@@ -717,11 +718,20 @@ function generateMondayDates() {
 
 function getNextMonday() {
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const mondays = generateMondayDates();
   for (const m of mondays) {
     if (new Date(m + 'T12:00:00') >= today) return m;
   }
   return mondays[mondays.length - 1];
+}
+
+function getNextSunday() {
+  const d = new Date();
+  d.setHours(12, 0, 0, 0);
+  const day = d.getDay();
+  if (day !== 0) d.setDate(d.getDate() + (7 - day));
+  return d.toISOString().split('T')[0];
 }
 
 function getActivitiesWithPerformance() {
@@ -848,10 +858,11 @@ function renderDashboard() {
   const monthDribRate = monthDribActs.length ? Math.round(avg(monthDribActs.map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess)))) : 0;
   const monthGoals = thisMonth.reduce((s, a) => s + (a.goals || 0), 0);
   const monthAssists = thisMonth.reduce((s, a) => s + (a.assists || 0), 0);
+  const monthShots = thisMonth.reduce((s, a) => s + (a.shots || 0), 0);
 
   const monthNames = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
   h += `<div class="section-title" style="margin-top:4px">Overzicht ${monthNames[now.getMonth()]}</div>`;
-  h += `<div class="stat-grid" style="margin-top:0">
+  h += `<div class="stat-grid stat-grid-3" style="margin-top:0">
     <div class="stat-box">
       <div class="stat-value">${thisMonth.length}</div>
       <div class="stat-label">Activiteiten</div>
@@ -865,7 +876,7 @@ function renderDashboard() {
       <div class="stat-label">Dribbel ratio</div>
     </div>
   </div>`;
-  h += `<div class="stat-grid stat-grid-2" style="margin-top:0">
+  h += `<div class="stat-grid stat-grid-3" style="margin-top:0">
     <div class="stat-box">
       <div class="stat-value">${monthGoals}</div>
       <div class="stat-label">Doelpunten</div>
@@ -873,6 +884,10 @@ function renderDashboard() {
     <div class="stat-box">
       <div class="stat-value">${monthAssists}</div>
       <div class="stat-label">Assists</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">${monthShots}</div>
+      <div class="stat-label">Schoten</div>
     </div>
   </div>`;
 
@@ -903,16 +918,19 @@ function renderDashboard() {
   if (activities.length) {
     const last = activities[activities.length - 1];
     const dr = dribbleRate(last.dribbleAttempts, last.dribbleSuccess);
-    h += `<div class="card">
+    const lastDotClass = last.type === 'match' ? teamColorClass(last.team) : last.type === 'zaaltje' ? 'grey' : 'red';
+    const lastLabel = last.type === 'match' ? 'Wedstrijd' + (last.opponent ? ' — ' + last.opponent : '') : last.type === 'zaaltje' ? 'Zaaltje' : 'Training';
+    h += `<div class="card" onclick="showActivityDetail('${last.id}')" style="cursor:pointer">
       <div class="card-header">
         <span class="card-title">Laatste activiteit</span>
         <span class="card-subtitle">${formatDate(last.date)}</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <span class="team-dot ${last.type === 'match' ? teamColorClass(last.team) : 'grey'}"></span>
-        <span style="font-weight:600;font-size:0.85rem">${last.type === 'match' ? 'Wedstrijd' + (last.opponent ? ' — ' + last.opponent : '') : 'Training'}</span>
+        <span class="team-dot ${lastDotClass}"></span>
+        <span style="font-weight:600;font-size:0.85rem">${lastLabel}</span>
       </div>
-      ${last.dribbleAttempts ? `<div style="font-size:0.78rem;color:var(--text-muted)">
+      ${last.type === 'zaaltje' && last.zaaltje ? `<div style="font-size:0.78rem;color:var(--text-muted)">${last.zaaltje.ownPlay ? last.zaaltje.ownPlay.charAt(0).toUpperCase() + last.zaaltje.ownPlay.slice(1) : 'Zaaltje sessie'}${last.location ? ' &middot; ' + last.location : ''}</div>` :
+        last.dribbleAttempts ? `<div style="font-size:0.78rem;color:var(--text-muted)">
         ${last.dribbleSuccess}/${last.dribbleAttempts} dribbels (${dr}%) &middot; ${last.goals || 0}G ${last.assists || 0}A &middot; ${feelingEmoji(last.feeling)} ${feelingLabel(last.feeling)}
       </div>` : `<div style="font-size:0.78rem;color:var(--text-muted)">${feelingEmoji(last.feeling)} ${feelingLabel(last.feeling)}</div>`}
     </div>`;
@@ -1019,12 +1037,12 @@ let formState = null;
 function initFormState(type) {
   formState = {
     type: type,
-    date: type === 'training' ? getNextMonday() : new Date().toISOString().split('T')[0],
+    date: type === 'training' ? getNextMonday() : type === 'zaaltje' ? getNextSunday() : new Date().toISOString().split('T')[0],
     timeSlot: '20:00-21:30',
     customTime: '',
-    location: 'Sporthal de Toekomst, Spakenburg',
-    duration: 90,
-    calories: 1000,
+    location: type === 'zaaltje' ? 'Sporthal de Vrijbuiter, Almere' : 'Sporthal de Toekomst, Spakenburg',
+    duration: '',
+    calories: '',
     team: 'Joga Bonito',
     bond: 'SRZA',
     matchType: 'competitie',
@@ -1047,6 +1065,7 @@ function initFormState(type) {
       lowConfidence: false,
       lowFocus: false,
       dontKnow: false,
+      nothingSpecial: false,
       weight: '',
       waterLiters: '',
       other: ''
@@ -1066,9 +1085,9 @@ function renderEvaluatie() {
   let h = '';
 
   h += `<div class="type-selector">
-    <div class="type-btn ${fs.type === 'training' ? 'active' : ''}" onclick="formState.type='training';formState.bond='';renderEvaluatie()">Training</div>
-    <div class="type-btn ${fs.type === 'match' ? 'active' : ''}" onclick="formState.type='match';renderEvaluatie()">Wedstrijd</div>
-    <div class="type-btn ${fs.type === 'zaaltje' ? 'active' : ''}" onclick="formState.type='zaaltje';formState.bond='';renderEvaluatie()">Zaaltje</div>
+    <div class="type-btn ${fs.type === 'training' ? 'active' : ''}" onclick="initFormState('training');renderEvaluatie()">Training</div>
+    <div class="type-btn ${fs.type === 'match' ? 'active' : ''}" onclick="initFormState('match');renderEvaluatie()">Wedstrijd</div>
+    <div class="type-btn ${fs.type === 'zaaltje' ? 'active' : ''}" onclick="initFormState('zaaltje');renderEvaluatie()">Zaaltje</div>
   </div>`;
 
   if (fs.type === 'training') {
@@ -1102,11 +1121,11 @@ function renderEvaluatie() {
     h += `<div class="form-row">
       <div class="form-group">
         <label class="form-label">Duur (min)</label>
-        <input class="form-input" type="number" inputmode="numeric" value="${fs.duration}" onchange="formState.duration=parseInt(this.value)||0">
+        <input class="form-input" type="number" inputmode="numeric" value="${fs.duration}" onchange="formState.duration=this.value" placeholder="bijv. 90">
       </div>
       <div class="form-group">
         <label class="form-label">Calorieën</label>
-        <input class="form-input" type="number" inputmode="numeric" value="${fs.calories}" onchange="formState.calories=parseInt(this.value)||0">
+        <input class="form-input" type="number" inputmode="numeric" value="${fs.calories}" onchange="formState.calories=this.value" placeholder="bijv. 1000">
       </div>
     </div>`;
 
@@ -1171,31 +1190,17 @@ function renderEvaluatie() {
       <input class="form-input" type="text" value="${fs.location}" onchange="formState.location=this.value" placeholder="Waar gespeeld?">
     </div>`;
 
-    h += `<div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Duur (min)</label>
-        <input class="form-input" type="number" inputmode="numeric" value="${fs.duration}" onchange="formState.duration=parseInt(this.value)||0">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Aantal spelers</label>
-        <input class="form-input" type="number" inputmode="numeric" min="2" value="${fs.zaaltje?.playerCount || ''}" onchange="if(!formState.zaaltje)formState.zaaltje={};formState.zaaltje.playerCount=this.value" placeholder="bijv. 10">
-      </div>
+    h += `<div class="form-group">
+      <label class="form-label">Duur (min)</label>
+      <input class="form-input" type="number" inputmode="numeric" value="${fs.duration}" onchange="formState.duration=this.value" placeholder="bijv. 60">
     </div>`;
 
     h += `<div class="section-title">Zaaltje evaluatie</div>`;
 
     h += `<div class="form-group">
-      <label class="form-label">Hoe was het niveau?</label>
-      <div class="position-row">
-        ${['laag','gemiddeld','hoog','heel hoog'].map(n => `
-          <div class="position-btn ${(fs.zaaltje?.level) === n ? 'selected' : ''}" onclick="if(!formState.zaaltje)formState.zaaltje={};formState.zaaltje.level='${n}';renderEvaluatie()">${n.charAt(0).toUpperCase()+n.slice(1)}</div>`).join('')}
-      </div>
-    </div>`;
-
-    h += `<div class="form-group">
       <label class="form-label">Hoe was je eigen spel?</label>
       <div class="feeling-row">
-        ${['slecht','matig','goed','uitstekend'].map(n => `
+        ${['slecht','matig','neutraal','goed','uitstekend'].map(n => `
           <div class="feeling-btn ${(fs.zaaltje?.ownPlay) === n ? 'selected' : ''}" style="font-size:0.72rem" onclick="if(!formState.zaaltje)formState.zaaltje={};formState.zaaltje.ownPlay='${n}';renderEvaluatie()">${n.charAt(0).toUpperCase()+n.slice(1)}</div>`).join('')}
       </div>
     </div>`;
@@ -1280,6 +1285,7 @@ function renderEvaluatie() {
     h += `<div class="form-group"><label class="form-label">Terugblik op je voorbereiding</label>`;
 
     const prepItems = [
+      ['nothingSpecial', 'Geen bijzonderheden'],
       ['tiredBody', 'Fysiek moe (zware benen / vermoeidheid)'],
       ['poorSleep', 'Slechte nachtrust'],
       ['lowFitness', 'Weinig conditie'],
@@ -1304,11 +1310,11 @@ function renderEvaluatie() {
     h += `<div class="form-row">
       <div class="form-group">
         <label class="form-label">Gewicht vanochtend (kg)</label>
-        <input class="form-input" type="number" inputmode="decimal" step="0.1" value="${fs.preparation.weight}" onchange="formState.preparation.weight=this.value" placeholder="bijv. 74.0">
+        <input class="form-input" type="text" inputmode="decimal" value="${fs.preparation.weight}" onchange="formState.preparation.weight=this.value.replace(',','.')" placeholder="bijv. 74,0">
       </div>
       <div class="form-group">
         <label class="form-label">Water gedronken (L)</label>
-        <input class="form-input" type="number" inputmode="decimal" step="0.1" value="${fs.preparation.waterLiters}" onchange="formState.preparation.waterLiters=this.value" placeholder="bijv. 1.5">
+        <input class="form-input" type="text" inputmode="decimal" value="${fs.preparation.waterLiters}" onchange="formState.preparation.waterLiters=this.value.replace(',','.')" placeholder="bijv. 1,5">
       </div>
     </div>`;
 
@@ -1370,8 +1376,8 @@ function saveActivity() {
     date: fs.date,
     timeSlot: isZaaltje ? '' : (fs.timeSlot === 'overig' ? fs.customTime : fs.timeSlot),
     location: fs.location,
-    duration: fs.duration,
-    calories: isZaaltje ? 0 : fs.calories,
+    duration: parseInt(fs.duration) || 0,
+    calories: isZaaltje ? 0 : (parseInt(fs.calories) || 0),
     team: fs.type === 'match' ? fs.team : '',
     bond: fs.type === 'match' ? fs.bond : '',
     matchType: fs.type === 'match' ? fs.matchType : '',
@@ -1394,6 +1400,7 @@ function saveActivity() {
       lowConfidence: fs.preparation.lowConfidence,
       lowFocus: fs.preparation.lowFocus,
       dontKnow: fs.preparation.dontKnow,
+      nothingSpecial: fs.preparation.nothingSpecial,
       weight: parseFloat(fs.preparation.weight) || null,
       waterLiters: parseFloat(fs.preparation.waterLiters) || null,
       other: fs.preparation.other.trim()
@@ -1461,7 +1468,7 @@ function renderHistorie() {
       h += `<div class="card" onclick="showActivityDetail('${a.id}')" style="cursor:pointer">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div style="display:flex;align-items:center;gap:6px">
-            <span class="team-dot ${a.type === 'match' ? teamColorClass(a.team) : 'grey'}"></span>
+            <span class="team-dot ${a.type === 'match' ? teamColorClass(a.team) : a.type === 'zaaltje' ? 'grey' : 'red'}"></span>
             <strong style="font-size:0.85rem">${a.type === 'match' ? 'Wedstrijd' : a.type === 'zaaltje' ? 'Zaaltje' : 'Training'}</strong>
             ${a.opponent ? `<span style="font-size:0.82rem;color:var(--text-muted)">- ${a.opponent}</span>` : ''}
           </div>
@@ -1551,6 +1558,7 @@ function showActivityDetail(id) {
   if (a.preparation.lowConfidence) prepFlags.push('Weinig zelfvertrouwen');
   if (a.preparation.lowFocus) prepFlags.push('Weinig focus');
   if (a.preparation.dontKnow) prepFlags.push('Weet ik niet');
+  if (a.preparation.nothingSpecial) prepFlags.push('Geen bijzonderheden');
   if (prepFlags.length) {
     h += `<p style="font-size:0.78rem;margin-bottom:4px"><strong>Voorbereiding:</strong> ${prepFlags.join(', ')}</p>`;
   }
@@ -2159,12 +2167,12 @@ function generateCoachingInsights(activities, perf) {
 
 function generateCareerInsights() {
   const ins = [];
-  const perf = getActivitiesWithPerformance();
-  if (!perf.length) return ins;
+  const matchPerf = DB.activities.filter(a => a.type === 'match');
+  if (!matchPerf.length) return ins;
 
-  const thisSeasonGoals = perf.reduce((s, a) => s + a.goals, 0);
-  const thisSeasonAssists = perf.reduce((s, a) => s + a.assists, 0);
-  const thisSeasonPlayed = perf.length;
+  const thisSeasonGoals = matchPerf.reduce((s, a) => s + (a.goals || 0), 0);
+  const thisSeasonAssists = matchPerf.reduce((s, a) => s + (a.assists || 0), 0);
+  const thisSeasonPlayed = matchPerf.length;
 
   const histGoals = DB.historicalSeasons.reduce((s, hs) => s + (hs.comp.goals || 0) + (hs.friendly.goals || 0) + (hs.cup.goals || 0), 0);
   const histAssists = DB.historicalSeasons.reduce((s, hs) => s + (hs.comp.assists || 0) + (hs.friendly.assists || 0) + (hs.cup.assists || 0), 0);
@@ -2228,19 +2236,19 @@ function renderProfiel() {
   let h = '';
 
   const photoSrc = p.photo || '';
-  h += `<div class="card" style="text-align:center;padding:24px 16px">
+  h += `<div class="card" style="text-align:center;padding:24px 16px;background:var(--primary);color:var(--on-primary)">
     <div style="position:relative;width:80px;height:80px;margin:0 auto 12px;cursor:pointer" onclick="document.getElementById('photoUpload').click()">
       ${photoSrc
-        ? `<img src="${photoSrc}" style="width:80px;height:80px;border-radius:50%;object-fit:cover">`
-        : `<div style="width:80px;height:80px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700">IL</div>`}
-      <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.65rem;border:2px solid #fff">+</div>
+        ? `<img src="${photoSrc}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.3)">`
+        : `<div style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700">IL</div>`}
+      <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:#fff;color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:0.65rem;border:2px solid var(--primary)">+</div>
     </div>
     <input type="file" id="photoUpload" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
-    <h2 style="font-size:1.15rem;margin-bottom:4px">${p.name}</h2>
-    <p style="font-size:0.82rem;color:var(--text-muted)">${age} jaar &middot; ${p.foot} &middot; ${p.position}</p>
+    <h2 style="font-size:1.15rem;margin-bottom:4px;color:#fff">${p.name}</h2>
+    <p style="font-size:0.82rem;color:rgba(255,255,255,0.7)">${age} &middot; ${p.foot} &middot; ${p.position}</p>
     <div style="display:flex;justify-content:center;gap:16px;margin-top:12px;flex-wrap:wrap">
       ${Object.entries(p.numbers).map(([team, num]) =>
-        `<span style="font-size:0.75rem;display:flex;align-items:center;gap:4px"><span class="team-dot ${teamColorClass(team)}"></span>${team} #${num}</span>`
+        `<span style="font-size:0.75rem;display:flex;align-items:center;gap:4px;color:rgba(255,255,255,0.85)"><span class="team-dot ${teamColorClass(team)}"></span>${team} #${num}</span>`
       ).join('')}
     </div>
   </div>`;
@@ -2304,28 +2312,57 @@ function renderProfiel() {
   h += `<div class="section-title">Carrière</div>`;
   h += `<div class="pp-season">`;
 
+  const matchActivities = DB.activities.filter(a => a.type === 'match');
+  const currentSeason = DB.settings.currentSeason;
   let allTimeG = 0, allTimeA = 0, allTimeP = 0;
-  DB.historicalSeasons.forEach(s => {
-    const played = (s.comp.played || 0) + (s.friendly.played || 0) + (s.cup.played || 0);
-    const goals = (s.comp.goals || 0) + (s.friendly.goals || 0) + (s.cup.goals || 0);
-    const assists = (s.comp.assists || 0) + (s.friendly.assists || 0) + (s.cup.assists || 0);
-    allTimeG += goals;
-    allTimeA += assists;
-    allTimeP += played;
 
-    h += `<div class="pp-season-row">
-      <span class="pp-season-label"><span class="team-dot ${teamColorClass(s.team)}"></span>${s.season} ${s.team}</span>
+  ['KNVB', 'SRZA'].forEach(bond => {
+    h += `<div class="pp-season-header">${bond}</div>`;
+    let bondG = 0, bondA = 0, bondP = 0;
+
+    const bondSeasons = DB.historicalSeasons.filter(s => s.bond === bond);
+    bondSeasons.forEach(s => {
+      const played = (s.comp.played || 0) + (s.friendly.played || 0) + (s.cup.played || 0);
+      const goals = (s.comp.goals || 0) + (s.friendly.goals || 0) + (s.cup.goals || 0);
+      const assists = (s.comp.assists || 0) + (s.friendly.assists || 0) + (s.cup.assists || 0);
+      bondG += goals; bondA += assists; bondP += played;
+      h += `<div class="pp-season-row">
+        <span class="pp-season-label"><span class="team-dot ${teamColorClass(s.team)}"></span>${s.season} ${s.team}</span>
+        <div class="pp-season-stats">
+          <span class="pp-season-stat"><strong>${played}</strong> wed</span>
+          <span class="pp-season-stat"><strong>${goals}</strong> G</span>
+          <span class="pp-season-stat"><strong>${assists}</strong> A</span>
+        </div>
+      </div>`;
+    });
+
+    const bondMatches = matchActivities.filter(a => a.bond === bond);
+    if (bondMatches.length) {
+      const bmG = bondMatches.reduce((s, a) => s + (a.goals || 0), 0);
+      const bmA = bondMatches.reduce((s, a) => s + (a.assists || 0), 0);
+      const bmTeam = bondMatches[0].team;
+      bondG += bmG; bondA += bmA; bondP += bondMatches.length;
+      h += `<div class="pp-season-row">
+        <span class="pp-season-label"><span class="team-dot ${teamColorClass(bmTeam)}"></span>${currentSeason} ${bmTeam}</span>
+        <div class="pp-season-stats">
+          <span class="pp-season-stat"><strong>${bondMatches.length}</strong> wed</span>
+          <span class="pp-season-stat"><strong>${bmG}</strong> G</span>
+          <span class="pp-season-stat"><strong>${bmA}</strong> A</span>
+        </div>
+      </div>`;
+    }
+
+    h += `<div class="pp-season-row subtotal">
+      <span class="pp-season-label">Totaal ${bond}</span>
       <div class="pp-season-stats">
-        <span class="pp-season-stat"><strong>${played}</strong> wed</span>
-        <span class="pp-season-stat"><strong>${goals}</strong> G</span>
-        <span class="pp-season-stat"><strong>${assists}</strong> A</span>
+        <span class="pp-season-stat"><strong>${bondP}</strong> wed</span>
+        <span class="pp-season-stat"><strong>${bondG}</strong> G</span>
+        <span class="pp-season-stat"><strong>${bondA}</strong> A</span>
       </div>
     </div>`;
-  });
 
-  allTimeG += totalG;
-  allTimeA += totalA;
-  allTimeP += perf.length;
+    allTimeG += bondG; allTimeA += bondA; allTimeP += bondP;
+  });
 
   h += `<div class="pp-season-row total">
     <span class="pp-season-label">All-time</span>
