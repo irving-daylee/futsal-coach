@@ -472,16 +472,17 @@ h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
 .empty-state h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
 .empty-state p { font-size: 0.82rem; }
 
-/* === CAREER TABLE === */
-.career-row {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--bg);
-  font-size: 0.8rem;
-}
-.career-row:last-child { border-bottom: none; }
-.career-team { font-weight: 600; }
-.career-stats { color: var(--text-muted); text-align: right; }
+/* === CAREER TABLE (joga-bonito style) === */
+.pp-season { margin: 0; }
+.pp-season-header { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+.pp-season-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface); border-radius: var(--radius-sm); margin-bottom: 4px; font-size: 0.82rem; gap: 12px; }
+.pp-season-row.total { background: var(--primary); color: var(--on-primary); font-weight: 700; border-radius: 10px; margin-top: 8px; }
+.pp-season-row.total .pp-season-stat { color: rgba(255,255,255,0.7); }
+.pp-season-row.total .pp-season-stat strong { color: #fff; }
+.pp-season-label { font-weight: 600; display: flex; align-items: center; gap: 6px; min-width: 0; flex-shrink: 1; }
+.pp-season-stats { display: flex; gap: 12px; flex-shrink: 0; }
+.pp-season-stat { font-size: 0.75rem; color: var(--text-muted); }
+.pp-season-stat strong { color: var(--text); font-weight: 800; }
 
 /* === GOAL CARD === */
 .goal-card {
@@ -583,7 +584,7 @@ const STORAGE_KEY = 'futsalCoach_v1';
 const HISTORICAL_SEASONS = [
   { season: '2025/26', team: 'Ijsselmeervogels', bond: 'KNVB',
     comp: { played: 18, goals: 19, assists: 11 },
-    friendly: { played: 3, goals: 1, assists: 2 },
+    friendly: { played: 3, goals: 1, assists: 1 },
     cup: { played: 0, goals: 0, assists: 0 } },
   { season: '2025/26', team: 'Joga Bonito', bond: 'SRZA',
     comp: { played: 16, goals: 34, assists: 18 },
@@ -625,7 +626,7 @@ function loadData() {
       if (!d.nextActivityId) d.nextActivityId = (d.activities || []).length + 1;
       if (!d.nextGoalId) d.nextGoalId = (d.goals || []).length + 1;
       if (!d.goals) d.goals = [];
-      if (!d.historicalSeasons) d.historicalSeasons = JSON.parse(JSON.stringify(HISTORICAL_SEASONS));
+      d.historicalSeasons = JSON.parse(JSON.stringify(HISTORICAL_SEASONS));
       return d;
     }
   } catch (e) {}
@@ -875,6 +876,30 @@ function renderDashboard() {
     </div>
   </div>`;
 
+  const mMatchDrib = thisMonth.filter(a => a.type === 'match' && a.dribbleAttempts > 0);
+  const mTrainDrib = thisMonth.filter(a => a.type === 'training' && a.dribbleAttempts > 0);
+  if (mMatchDrib.length || mTrainDrib.length) {
+    const mMD = mMatchDrib.reduce((s, a) => s + a.dribbleSuccess, 0);
+    const mMA = mMatchDrib.reduce((s, a) => s + a.dribbleAttempts, 0);
+    const mTD = mTrainDrib.reduce((s, a) => s + a.dribbleSuccess, 0);
+    const mTA = mTrainDrib.reduce((s, a) => s + a.dribbleAttempts, 0);
+    h += `<div class="card" style="margin-top:4px">
+      <div class="card-title" style="margin-bottom:10px">Dribbels deze maand</div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;background:var(--bg);border-radius:var(--radius-sm);padding:12px;text-align:center">
+          <div style="font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px">Wedstrijden</div>
+          <div style="font-size:1.1rem;font-weight:700">${mMA > 0 ? Math.round((mMD/mMA)*100) : 0}%</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px">${mMD}/${mMA} &middot; ${mMatchDrib.length ? (mMD/mMatchDrib.length).toFixed(1) : '0'}/wed</div>
+        </div>
+        <div style="flex:1;background:var(--bg);border-radius:var(--radius-sm);padding:12px;text-align:center">
+          <div style="font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px">Trainingen</div>
+          <div style="font-size:1.1rem;font-weight:700">${mTA > 0 ? Math.round((mTD/mTA)*100) : 0}%</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px">${mTD}/${mTA} &middot; ${mTrainDrib.length ? (mTD/mTrainDrib.length).toFixed(1) : '0'}/tr</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
   if (activities.length) {
     const last = activities[activities.length - 1];
     const dr = dribbleRate(last.dribbleAttempts, last.dribbleSuccess);
@@ -1043,6 +1068,7 @@ function renderEvaluatie() {
   h += `<div class="type-selector">
     <div class="type-btn ${fs.type === 'training' ? 'active' : ''}" onclick="formState.type='training';formState.bond='';renderEvaluatie()">Training</div>
     <div class="type-btn ${fs.type === 'match' ? 'active' : ''}" onclick="formState.type='match';renderEvaluatie()">Wedstrijd</div>
+    <div class="type-btn ${fs.type === 'zaaltje' ? 'active' : ''}" onclick="formState.type='zaaltje';formState.bond='';renderEvaluatie()">Zaaltje</div>
   </div>`;
 
   if (fs.type === 'training') {
@@ -1134,6 +1160,62 @@ function renderEvaluatie() {
     </div>`;
   }
 
+  if (fs.type === 'zaaltje') {
+    h += `<div class="form-group">
+      <label class="form-label">Datum</label>
+      <input class="form-input" type="date" value="${fs.date}" onchange="formState.date=this.value">
+    </div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Locatie</label>
+      <input class="form-input" type="text" value="${fs.location}" onchange="formState.location=this.value" placeholder="Waar gespeeld?">
+    </div>`;
+
+    h += `<div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Duur (min)</label>
+        <input class="form-input" type="number" inputmode="numeric" value="${fs.duration}" onchange="formState.duration=parseInt(this.value)||0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Aantal spelers</label>
+        <input class="form-input" type="number" inputmode="numeric" min="2" value="${fs.zaaltje?.playerCount || ''}" onchange="if(!formState.zaaltje)formState.zaaltje={};formState.zaaltje.playerCount=this.value" placeholder="bijv. 10">
+      </div>
+    </div>`;
+
+    h += `<div class="section-title">Zaaltje evaluatie</div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Hoe was het niveau?</label>
+      <div class="position-row">
+        ${['laag','gemiddeld','hoog','heel hoog'].map(n => `
+          <div class="position-btn ${(fs.zaaltje?.level) === n ? 'selected' : ''}" onclick="if(!formState.zaaltje)formState.zaaltje={};formState.zaaltje.level='${n}';renderEvaluatie()">${n.charAt(0).toUpperCase()+n.slice(1)}</div>`).join('')}
+      </div>
+    </div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Hoe was je eigen spel?</label>
+      <div class="feeling-row">
+        ${['slecht','matig','goed','uitstekend'].map(n => `
+          <div class="feeling-btn ${(fs.zaaltje?.ownPlay) === n ? 'selected' : ''}" style="font-size:0.72rem" onclick="if(!formState.zaaltje)formState.zaaltje={};formState.zaaltje.ownPlay='${n}';renderEvaluatie()">${n.charAt(0).toUpperCase()+n.slice(1)}</div>`).join('')}
+      </div>
+    </div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Wat heb je geoefend / geprobeerd?</label>
+      <textarea class="form-textarea" placeholder="Nieuwe tricks, dribbels, schoten, positiespel..." onchange="if(!formState.zaaltje)formState.zaaltje={};formState.zaaltje.practiced=this.value">${fs.zaaltje?.practiced || ''}</textarea>
+    </div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Wat ging goed?</label>
+      <textarea class="form-textarea" style="min-height:60px" placeholder="Waar ben je tevreden over?" onchange="if(!formState.zaaltje)formState.zaaltje={};formState.zaaltje.wentWell=this.value">${fs.zaaltje?.wentWell || ''}</textarea>
+    </div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Wat kan beter?</label>
+      <textarea class="form-textarea" style="min-height:60px" placeholder="Waar wil je aan werken?" onchange="if(!formState.zaaltje)formState.zaaltje={};formState.zaaltje.canImprove=this.value">${fs.zaaltje?.canImprove || ''}</textarea>
+    </div>`;
+  }
+
   if (showPerf) {
     h += `<div class="section-title">Prestatie</div>`;
 
@@ -1176,90 +1258,92 @@ function renderEvaluatie() {
     </div>`;
   }
 
-  h += `<div class="section-title">Evaluatie</div>`;
+  if (fs.type !== 'zaaltje') {
+    h += `<div class="section-title">Evaluatie</div>`;
 
-  h += `<div class="form-group">
-    <label class="form-label">Met welk gevoel evalueer je deze prestatie?</label>
-    <div class="feeling-row">
-      ${['ontevreden','neutraal','tevreden','zeer tevreden'].map(f => `
-        <div class="feeling-btn ${fs.feeling === f ? 'selected' : ''}" onclick="formState.feeling='${f}';renderEvaluatie()">
-          <span class="feeling-emoji">${feelingEmoji(f)}</span>${feelingLabel(f)}
-        </div>`).join('')}
-    </div>
-  </div>`;
-
-  h += `<div class="form-group">
-    <label class="form-label">Toelichting</label>
-    <textarea class="form-textarea" placeholder="Wat ging goed? Wat kan beter?" onchange="formState.notes=this.value">${fs.notes}</textarea>
-  </div>`;
-
-  h += `<div class="section-title">Voorbereiding</div>`;
-  h += `<div class="form-group"><label class="form-label">Terugblik op je voorbereiding</label>`;
-
-  const prepItems = [
-    ['tiredBody', 'Fysiek moe (zware benen / vermoeidheid)'],
-    ['poorSleep', 'Slechte nachtrust'],
-    ['lowFitness', 'Weinig conditie'],
-    ['lowConfidence', 'Weinig zelfvertrouwen'],
-    ['lowFocus', 'Weinig focus'],
-    ['dontKnow', 'Weet ik niet']
-  ];
-
-  prepItems.forEach(([key, label]) => {
-    h += `<div class="checklist-item" onclick="formState.preparation.${key}=!formState.preparation.${key};renderEvaluatie()">
-      <div class="checkbox ${fs.preparation[key] ? 'checked' : ''}">${fs.preparation[key] ? '✓' : ''}</div>
-      <span class="checklist-label">${label}</span>
+    h += `<div class="form-group">
+      <label class="form-label">Met welk gevoel evalueer je deze prestatie?</label>
+      <div class="feeling-row">
+        ${['ontevreden','neutraal','tevreden','zeer tevreden'].map(f => `
+          <div class="feeling-btn ${fs.feeling === f ? 'selected' : ''}" onclick="formState.feeling='${f}';renderEvaluatie()">
+            <span class="feeling-emoji">${feelingEmoji(f)}</span>${feelingLabel(f)}
+          </div>`).join('')}
+      </div>
     </div>`;
-  });
-  h += `</div>`;
 
-  h += `<div class="form-group">
-    <label class="form-label">Anders, namelijk</label>
-    <input class="form-input" type="text" value="${fs.preparation.other}" onchange="formState.preparation.other=this.value" placeholder="Optioneel">
-  </div>`;
-
-  h += `<div class="form-row">
-    <div class="form-group">
-      <label class="form-label">Gewicht vanochtend (kg)</label>
-      <input class="form-input" type="number" inputmode="decimal" step="0.1" value="${fs.preparation.weight}" onchange="formState.preparation.weight=this.value" placeholder="bijv. 74.0">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Water gedronken (L)</label>
-      <input class="form-input" type="number" inputmode="decimal" step="0.1" value="${fs.preparation.waterLiters}" onchange="formState.preparation.waterLiters=this.value" placeholder="bijv. 1.5">
-    </div>
-  </div>`;
-
-  h += `<div class="section-title">Positie</div>`;
-  h += `<div class="form-group">
-    <label class="form-label">Op welke positie speelde je het meest?</label>
-    <div class="position-row">
-      ${['flank-links','flank-rechts','laatste-man','spits'].map(p => `
-        <div class="position-btn ${fs.mainPosition === p ? 'selected' : ''}" onclick="formState.mainPosition='${p}';renderEvaluatie()">${positionLabel(p)}</div>`).join('')}
-    </div>
-  </div>`;
-
-  h += `<div class="form-group">
-    <label class="form-label">Hoe kwam dat?</label>
-    <textarea class="form-textarea" placeholder="Waarom speelde je op deze positie?" onchange="formState.positionReason=this.value" style="min-height:60px">${fs.positionReason}</textarea>
-  </div>`;
-
-  h += `<div class="section-title">Focus</div>`;
-  h += `<div class="form-group">
-    <label class="form-label">Focuspunten (optioneel, max 2)</label>
-    <p class="form-hint" style="margin-bottom:8px">Waar wilde je op letten? Evalueer achteraf hoe het ging.</p>`;
-
-  for (let i = 0; i < 2; i++) {
-    const fp = fs.focusPoints[i] || { text: '', result: '' };
-    h += `<div class="focus-item">
-      <input class="form-input" type="text" value="${fp.text}" placeholder="Focus ${i + 1}" style="flex:1;padding:8px 10px;font-size:0.8rem" onchange="updateFocusPoint(${i},'text',this.value)">
-      ${fp.text ? `<div class="focus-result-btns">
-        <div class="focus-result-btn ${fp.result === 'niet' ? 'selected-niet' : ''}" onclick="updateFocusPoint(${i},'result','niet')">Niet</div>
-        <div class="focus-result-btn ${fp.result === 'deels' ? 'selected-deels' : ''}" onclick="updateFocusPoint(${i},'result','deels')">Deels</div>
-        <div class="focus-result-btn ${fp.result === 'gehaald' ? 'selected-gehaald' : ''}" onclick="updateFocusPoint(${i},'result','gehaald')">Gehaald</div>
-      </div>` : ''}
+    h += `<div class="form-group">
+      <label class="form-label">Toelichting</label>
+      <textarea class="form-textarea" placeholder="Wat ging goed? Wat kan beter?" onchange="formState.notes=this.value">${fs.notes}</textarea>
     </div>`;
+
+    h += `<div class="section-title">Voorbereiding</div>`;
+    h += `<div class="form-group"><label class="form-label">Terugblik op je voorbereiding</label>`;
+
+    const prepItems = [
+      ['tiredBody', 'Fysiek moe (zware benen / vermoeidheid)'],
+      ['poorSleep', 'Slechte nachtrust'],
+      ['lowFitness', 'Weinig conditie'],
+      ['lowConfidence', 'Weinig zelfvertrouwen'],
+      ['lowFocus', 'Weinig focus'],
+      ['dontKnow', 'Weet ik niet']
+    ];
+
+    prepItems.forEach(([key, label]) => {
+      h += `<div class="checklist-item" onclick="formState.preparation.${key}=!formState.preparation.${key};renderEvaluatie()">
+        <div class="checkbox ${fs.preparation[key] ? 'checked' : ''}">${fs.preparation[key] ? '✓' : ''}</div>
+        <span class="checklist-label">${label}</span>
+      </div>`;
+    });
+    h += `</div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Anders, namelijk</label>
+      <input class="form-input" type="text" value="${fs.preparation.other}" onchange="formState.preparation.other=this.value" placeholder="Optioneel">
+    </div>`;
+
+    h += `<div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Gewicht vanochtend (kg)</label>
+        <input class="form-input" type="number" inputmode="decimal" step="0.1" value="${fs.preparation.weight}" onchange="formState.preparation.weight=this.value" placeholder="bijv. 74.0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Water gedronken (L)</label>
+        <input class="form-input" type="number" inputmode="decimal" step="0.1" value="${fs.preparation.waterLiters}" onchange="formState.preparation.waterLiters=this.value" placeholder="bijv. 1.5">
+      </div>
+    </div>`;
+
+    h += `<div class="section-title">Positie</div>`;
+    h += `<div class="form-group">
+      <label class="form-label">Op welke positie speelde je het meest?</label>
+      <div class="position-row">
+        ${['flank-links','flank-rechts','laatste-man','spits'].map(p => `
+          <div class="position-btn ${fs.mainPosition === p ? 'selected' : ''}" onclick="formState.mainPosition='${p}';renderEvaluatie()">${positionLabel(p)}</div>`).join('')}
+      </div>
+    </div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Hoe kwam dat?</label>
+      <textarea class="form-textarea" placeholder="Waarom speelde je op deze positie?" onchange="formState.positionReason=this.value" style="min-height:60px">${fs.positionReason}</textarea>
+    </div>`;
+
+    h += `<div class="section-title">Focus</div>`;
+    h += `<div class="form-group">
+      <label class="form-label">Focuspunten (optioneel, max 2)</label>
+      <p class="form-hint" style="margin-bottom:8px">Waar wilde je op letten? Evalueer achteraf hoe het ging.</p>`;
+
+    for (let i = 0; i < 2; i++) {
+      const fp = fs.focusPoints[i] || { text: '', result: '' };
+      h += `<div class="focus-item">
+        <input class="form-input" type="text" value="${fp.text}" placeholder="Focus ${i + 1}" style="flex:1;padding:8px 10px;font-size:0.8rem" onchange="updateFocusPoint(${i},'text',this.value)">
+        ${fp.text ? `<div class="focus-result-btns">
+          <div class="focus-result-btn ${fp.result === 'niet' ? 'selected-niet' : ''}" onclick="updateFocusPoint(${i},'result','niet')">Niet</div>
+          <div class="focus-result-btn ${fp.result === 'deels' ? 'selected-deels' : ''}" onclick="updateFocusPoint(${i},'result','deels')">Deels</div>
+          <div class="focus-result-btn ${fp.result === 'gehaald' ? 'selected-gehaald' : ''}" onclick="updateFocusPoint(${i},'result','gehaald')">Gehaald</div>
+        </div>` : ''}
+      </div>`;
+    }
+    h += `</div>`;
   }
-  h += `</div>`;
 
   h += `<button class="btn btn-primary btn-block" style="margin-top:20px" onclick="saveActivity()">Opslaan</button>`;
 
@@ -1279,30 +1363,31 @@ function saveActivity() {
     showToast('Vul een tegenstander in');
     return;
   }
+  const isZaaltje = fs.type === 'zaaltje';
   const activity = {
     id: 'a' + DB.nextActivityId++,
     type: fs.type,
     date: fs.date,
-    timeSlot: fs.timeSlot === 'overig' ? fs.customTime : fs.timeSlot,
+    timeSlot: isZaaltje ? '' : (fs.timeSlot === 'overig' ? fs.customTime : fs.timeSlot),
     location: fs.location,
     duration: fs.duration,
-    calories: fs.calories,
+    calories: isZaaltje ? 0 : fs.calories,
     team: fs.type === 'match' ? fs.team : '',
     bond: fs.type === 'match' ? fs.bond : '',
     matchType: fs.type === 'match' ? fs.matchType : '',
     opponent: fs.type === 'match' ? fs.opponent.trim() : '',
     playMinutes: fs.type === 'match' ? (parseInt(fs.playMinutes) || null) : null,
     hasPartijspel: fs.type === 'training' ? fs.hasPartijspel : false,
-    dribbleAttempts: parseInt(fs.dribbleAttempts) || 0,
-    dribbleSuccess: parseInt(fs.dribbleSuccess) || 0,
-    shots: parseInt(fs.shots) || 0,
-    shotsOnTarget: parseInt(fs.shotsOnTarget) || 0,
-    bigChances: parseInt(fs.bigChances) || 0,
-    goals: parseInt(fs.goals) || 0,
-    assists: parseInt(fs.assists) || 0,
-    feeling: fs.feeling,
-    notes: fs.notes.trim(),
-    preparation: {
+    dribbleAttempts: isZaaltje ? 0 : (parseInt(fs.dribbleAttempts) || 0),
+    dribbleSuccess: isZaaltje ? 0 : (parseInt(fs.dribbleSuccess) || 0),
+    shots: isZaaltje ? 0 : (parseInt(fs.shots) || 0),
+    shotsOnTarget: isZaaltje ? 0 : (parseInt(fs.shotsOnTarget) || 0),
+    bigChances: isZaaltje ? 0 : (parseInt(fs.bigChances) || 0),
+    goals: isZaaltje ? 0 : (parseInt(fs.goals) || 0),
+    assists: isZaaltje ? 0 : (parseInt(fs.assists) || 0),
+    feeling: isZaaltje ? '' : fs.feeling,
+    notes: isZaaltje ? '' : fs.notes.trim(),
+    preparation: isZaaltje ? {} : {
       tiredBody: fs.preparation.tiredBody,
       poorSleep: fs.preparation.poorSleep,
       lowFitness: fs.preparation.lowFitness,
@@ -1313,9 +1398,17 @@ function saveActivity() {
       waterLiters: parseFloat(fs.preparation.waterLiters) || null,
       other: fs.preparation.other.trim()
     },
-    mainPosition: fs.mainPosition,
-    positionReason: fs.positionReason.trim(),
-    focusPoints: fs.focusPoints.filter(fp => fp.text.trim())
+    mainPosition: isZaaltje ? '' : fs.mainPosition,
+    positionReason: isZaaltje ? '' : fs.positionReason.trim(),
+    focusPoints: isZaaltje ? [] : fs.focusPoints.filter(fp => fp.text.trim()),
+    zaaltje: isZaaltje ? {
+      playerCount: parseInt((fs.zaaltje || {}).playerCount) || null,
+      level: (fs.zaaltje || {}).level || '',
+      ownPlay: (fs.zaaltje || {}).ownPlay || '',
+      practiced: ((fs.zaaltje || {}).practiced || '').trim(),
+      wentWell: ((fs.zaaltje || {}).wentWell || '').trim(),
+      canImprove: ((fs.zaaltje || {}).canImprove || '').trim()
+    } : null
   };
   DB.activities.push(activity);
   DB.activities.sort((a, b) => a.date.localeCompare(b.date));
@@ -1342,6 +1435,7 @@ function renderHistorie() {
     <button class="tab-btn ${historieFilter.type === 'all' ? 'active' : ''}" onclick="historieFilter.type='all';renderHistorie()">Alles</button>
     <button class="tab-btn ${historieFilter.type === 'training' ? 'active' : ''}" onclick="historieFilter.type='training';renderHistorie()">Training</button>
     <button class="tab-btn ${historieFilter.type === 'match' ? 'active' : ''}" onclick="historieFilter.type='match';renderHistorie()">Wedstrijd</button>
+    <button class="tab-btn ${historieFilter.type === 'zaaltje' ? 'active' : ''}" onclick="historieFilter.type='zaaltje';renderHistorie()">Zaaltje</button>
   </div>`;
 
   if (historieFilter.type === 'match' || historieFilter.type === 'all') {
@@ -1368,12 +1462,16 @@ function renderHistorie() {
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div style="display:flex;align-items:center;gap:6px">
             <span class="team-dot ${a.type === 'match' ? teamColorClass(a.team) : 'grey'}"></span>
-            <strong style="font-size:0.85rem">${a.type === 'match' ? 'Wedstrijd' : 'Training'}</strong>
+            <strong style="font-size:0.85rem">${a.type === 'match' ? 'Wedstrijd' : a.type === 'zaaltje' ? 'Zaaltje' : 'Training'}</strong>
             ${a.opponent ? `<span style="font-size:0.82rem;color:var(--text-muted)">- ${a.opponent}</span>` : ''}
           </div>
           <span style="font-size:0.72rem;color:var(--text-muted)">${formatDate(a.date)}</span>
         </div>
-        ${hasPerf ? `<div style="display:flex;gap:12px;margin-top:8px;font-size:0.78rem;color:var(--text-muted)">
+        ${a.type === 'zaaltje' && a.zaaltje ? `<div style="display:flex;gap:12px;margin-top:8px;font-size:0.78rem;color:var(--text-muted)">
+          ${a.zaaltje.ownPlay ? `<span>${a.zaaltje.ownPlay}</span>` : ''}
+          ${a.zaaltje.level ? `<span>niveau: ${a.zaaltje.level}</span>` : ''}
+          ${a.location ? `<span>${a.location}</span>` : ''}
+        </div>` : hasPerf ? `<div style="display:flex;gap:12px;margin-top:8px;font-size:0.78rem;color:var(--text-muted)">
           ${a.dribbleAttempts ? `<span>${dr}% dribbel</span>` : ''}
           ${a.goals ? `<span>${a.goals} goal${a.goals > 1 ? 's' : ''}</span>` : ''}
           ${a.assists ? `<span>${a.assists} assist${a.assists > 1 ? 's' : ''}</span>` : ''}
@@ -1393,7 +1491,24 @@ function showActivityDetail(id) {
   const cr = conversionRate(a.shots, a.goals);
   const hasPerf = a.dribbleAttempts > 0 || a.shots > 0 || a.goals > 0 || a.assists > 0;
 
-  let h = `<div class="modal-title">${a.type === 'match' ? 'Wedstrijd' : 'Training'} ${formatDateLong(a.date)}</div>`;
+  let h = `<div class="modal-title">${a.type === 'match' ? 'Wedstrijd' : a.type === 'zaaltje' ? 'Zaaltje' : 'Training'} ${formatDateLong(a.date)}</div>`;
+
+  if (a.type === 'zaaltje' && a.zaaltje) {
+    if (a.location) h += `<p style="font-size:0.85rem;margin-bottom:4px"><strong>Locatie:</strong> ${a.location}</p>`;
+    h += `<p style="font-size:0.85rem;margin-bottom:4px"><strong>Duur:</strong> ${a.duration} min</p>`;
+    if (a.zaaltje.playerCount) h += `<p style="font-size:0.85rem;margin-bottom:4px"><strong>Spelers:</strong> ${a.zaaltje.playerCount}</p>`;
+    if (a.zaaltje.level) h += `<p style="font-size:0.85rem;margin-bottom:4px"><strong>Niveau:</strong> ${a.zaaltje.level}</p>`;
+    if (a.zaaltje.ownPlay) h += `<p style="font-size:0.85rem;margin-bottom:4px"><strong>Eigen spel:</strong> ${a.zaaltje.ownPlay}</p>`;
+    if (a.zaaltje.practiced) h += `<div class="divider"></div><p style="font-size:0.78rem;margin-bottom:4px"><strong>Geoefend:</strong></p><p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">${a.zaaltje.practiced}</p>`;
+    if (a.zaaltje.wentWell) h += `<p style="font-size:0.78rem;margin-bottom:4px"><strong>Ging goed:</strong></p><p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">${a.zaaltje.wentWell}</p>`;
+    if (a.zaaltje.canImprove) h += `<p style="font-size:0.78rem;margin-bottom:4px"><strong>Kan beter:</strong></p><p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">${a.zaaltje.canImprove}</p>`;
+    h += `<div style="display:flex;gap:8px;margin-top:20px">
+      <button class="btn btn-outline" style="flex:1" onclick="deleteActivity('${a.id}')">Verwijderen</button>
+      <button class="btn btn-primary" style="flex:1" onclick="closeModal()">Sluiten</button>
+    </div>`;
+    openModal(h);
+    return;
+  }
 
   if (a.type === 'match') {
     h += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
@@ -2159,16 +2274,35 @@ function renderProfiel() {
     <div class="stat-box"><div class="stat-value">${convRate}%</div><div class="stat-label">Conversie</div></div>
   </div>`;
 
-  if (perf.length) {
-    h += `<div class="stat-grid stat-grid-3">
-      <div class="stat-box"><div class="stat-value">${avgDR}%</div><div class="stat-label">Dribbel%</div></div>
-      <div class="stat-box"><div class="stat-value">${perf.reduce((s, a) => s + a.dribbleAttempts, 0)}</div><div class="stat-label">Pogingen</div></div>
-      <div class="stat-box"><div class="stat-value">${perf.reduce((s, a) => s + a.dribbleSuccess, 0)}</div><div class="stat-label">Geslaagd</div></div>
-    </div>`;
-  }
+  const matchDrib = perf.filter(a => a.type === 'match' && a.dribbleAttempts > 0);
+  const trainDrib = perf.filter(a => a.type === 'training' && a.dribbleAttempts > 0);
+  const matchDribTotal = matchDrib.reduce((s, a) => s + a.dribbleSuccess, 0);
+  const matchDribAttempts = matchDrib.reduce((s, a) => s + a.dribbleAttempts, 0);
+  const trainDribTotal = trainDrib.reduce((s, a) => s + a.dribbleSuccess, 0);
+  const trainDribAttempts = trainDrib.reduce((s, a) => s + a.dribbleAttempts, 0);
+  const matchDribRate = matchDribAttempts > 0 ? Math.round((matchDribTotal / matchDribAttempts) * 100) : 0;
+  const trainDribRate = trainDribAttempts > 0 ? Math.round((trainDribTotal / trainDribAttempts) * 100) : 0;
+  const matchDribPerAct = matchDrib.length ? (matchDribTotal / matchDrib.length).toFixed(1) : '0';
+  const trainDribPerAct = trainDrib.length ? (trainDribTotal / trainDrib.length).toFixed(1) : '0';
+
+  h += `<div class="section-title">Dribbels — Wedstrijden</div>`;
+  h += `<div class="stat-grid">
+    <div class="stat-box"><div class="stat-value">${matchDribAttempts}</div><div class="stat-label">Pogingen</div></div>
+    <div class="stat-box"><div class="stat-value">${matchDribTotal}</div><div class="stat-label">Geslaagd</div></div>
+    <div class="stat-box"><div class="stat-value">${matchDribRate}%</div><div class="stat-label">Succes%</div></div>
+    <div class="stat-box"><div class="stat-value">${matchDribPerAct}</div><div class="stat-label">Per wed.</div></div>
+  </div>`;
+
+  h += `<div class="section-title">Dribbels — Trainingen</div>`;
+  h += `<div class="stat-grid">
+    <div class="stat-box"><div class="stat-value">${trainDribAttempts}</div><div class="stat-label">Pogingen</div></div>
+    <div class="stat-box"><div class="stat-value">${trainDribTotal}</div><div class="stat-label">Geslaagd</div></div>
+    <div class="stat-box"><div class="stat-value">${trainDribRate}%</div><div class="stat-label">Succes%</div></div>
+    <div class="stat-box"><div class="stat-value">${trainDribPerAct}</div><div class="stat-label">Per training</div></div>
+  </div>`;
 
   h += `<div class="section-title">Carrière</div>`;
-  h += `<div class="card">`;
+  h += `<div class="pp-season">`;
 
   let allTimeG = 0, allTimeA = 0, allTimeP = 0;
   DB.historicalSeasons.forEach(s => {
@@ -2179,28 +2313,28 @@ function renderProfiel() {
     allTimeA += assists;
     allTimeP += played;
 
-    if (!played && !goals) {
-      h += `<div class="career-row">
-        <div><span class="team-dot ${teamColorClass(s.team)}"></span> <span class="career-team">${s.season} ${s.team}</span></div>
-        <div class="career-stats">${s.bond}</div>
-      </div>`;
-    } else {
-      h += `<div class="career-row">
-        <div><span class="team-dot ${teamColorClass(s.team)}"></span> <span class="career-team">${s.season} ${s.team}</span></div>
-        <div class="career-stats">${played} wed &middot; ${goals}G ${assists}A</div>
-      </div>`;
-    }
+    h += `<div class="pp-season-row">
+      <span class="pp-season-label"><span class="team-dot ${teamColorClass(s.team)}"></span>${s.season} ${s.team}</span>
+      <div class="pp-season-stats">
+        <span class="pp-season-stat"><strong>${played}</strong> wed</span>
+        <span class="pp-season-stat"><strong>${goals}</strong> G</span>
+        <span class="pp-season-stat"><strong>${assists}</strong> A</span>
+      </div>
+    </div>`;
   });
 
   allTimeG += totalG;
   allTimeA += totalA;
   allTimeP += perf.length;
 
-  h += `<div class="divider"></div>
-    <div class="career-row" style="border-bottom:none">
-      <div><strong>All-time totaal</strong></div>
-      <div class="career-stats" style="font-weight:700;color:var(--text)">${allTimeP} wed &middot; ${allTimeG}G ${allTimeA}A</div>
-    </div>`;
+  h += `<div class="pp-season-row total">
+    <span class="pp-season-label">All-time</span>
+    <div class="pp-season-stats">
+      <span class="pp-season-stat"><strong>${allTimeP}</strong> wed</span>
+      <span class="pp-season-stat"><strong>${allTimeG}</strong> G</span>
+      <span class="pp-season-stat"><strong>${allTimeA}</strong> A</span>
+    </div>
+  </div>`;
   h += `</div>`;
 
   h += `<button class="btn btn-outline btn-block btn-sm mt-16" onclick="exportData()">Data exporteren (JSON)</button>`;
