@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Futsal Coach</title>
+<meta name="theme-color" content="#111111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --primary: #111111;
+  --primary-dark: #000000;
+  --primary-light: #333333;
+  --primary-10: rgba(17,17,17,0.08);
+  --primary-20: rgba(17,17,17,0.15);
+  --surface: #FFFFFF;
+  --bg: #F5F5F5;
+  --border: #E5E7EB;
+  --text: #1A1A2E;
+  --text-muted: #6B7280;
+  --on-primary: #FFFFFF;
+  --blue: #2563EB;
+  --blue-bg: rgba(37,99,235,0.08);
+  --blue-light: rgba(37,99,235,0.15);
+  --red: #DC2626;
+  --red-bg: rgba(220,38,38,0.08);
+  --red-light: rgba(220,38,38,0.15);
+  --grey: #9CA3AF;
+  --grey-bg: rgba(156,163,175,0.08);
+  --positive: #10B981;
+  --positive-bg: rgba(16,185,129,0.08);
+  --warning: #F59E0B;
+  --warning-bg: rgba(245,158,11,0.08);
+  --negative: #EF4444;
+  --negative-bg: rgba(239,68,68,0.08);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 4px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
+  --transition: 0.2s ease;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { height: 100%; overflow-x: hidden; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  padding-bottom: 80px;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
+
+/* === TOPBAR === */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.topbar-logo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.topbar-initials {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 700;
+  cursor: pointer;
+}
+
+/* === BOTTOM NAV === */
+.bottomnav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  display: flex;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.bottomnav button {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px;
+  padding: 8px 2px 6px;
+  border: none; background: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.6rem; font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  transition: color var(--transition);
+}
+.bottomnav button .nav-icon { font-size: 1.15rem; line-height: 1; }
+.bottomnav button.active { color: var(--primary); font-weight: 700; }
+.bottomnav button.active::after {
+  content: '';
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 24px; height: 2.5px;
+  background: var(--primary);
+  border-radius: 0 0 2px 2px;
+}
+
+/* === PAGES === */
+.page { display: none; padding: 16px 16px 24px; max-width: 600px; margin: 0 auto; }
+.page.active { display: block; }
+
+/* === CARDS === */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.card-title { font-size: 0.88rem; font-weight: 700; }
+.card-subtitle { font-size: 0.75rem; color: var(--text-muted); }
+
+/* === BUTTONS === */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px 20px;
+  border: none; border-radius: var(--radius-sm);
+  font-family: inherit; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all var(--transition);
+  -webkit-appearance: none;
+}
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:active { background: var(--primary-dark); transform: scale(0.98); }
+.btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--border); }
+.btn-outline:active { background: var(--primary-10); }
+.btn-sm { padding: 8px 14px; font-size: 0.78rem; }
+.btn-block { width: 100%; }
+.btn-danger { background: var(--negative); color: white; }
+.btn-danger:active { opacity: 0.85; transform: scale(0.98); }
+
+/* === FORMS === */
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block;
+  font-size: 0.78rem; font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit; font-size: 0.88rem;
+  color: var(--text);
+  background: var(--surface);
+  transition: border-color var(--transition);
+  -webkit-appearance: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+.form-input:disabled, .form-select:disabled {
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-hint { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
+.form-row { display: flex; gap: 12px; }
+.form-row .form-group { flex: 1; }
+
+/* === TYPE SELECTOR === */
+.type-selector { display: flex; gap: 8px; margin-bottom: 20px; }
+.type-btn {
+  flex: 1;
+  padding: 14px 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-family: inherit; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer; transition: all var(--transition);
+  text-align: center;
+}
+.type-btn.active { border-color: var(--primary); background: var(--primary-10); }
+.type-btn:active { transform: scale(0.97); }
+
+/* === FEELING SELECTOR === */
+.feeling-row { display: flex; gap: 6px; }
+.feeling-btn {
+  flex: 1;
+  padding: 10px 4px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  text-align: center;
+  cursor: pointer;
+  font-family: inherit; font-size: 0.7rem; font-weight: 600;
+  transition: all var(--transition);
+  line-height: 1.3;
+}
+.feeling-btn .feeling-emoji { font-size: 1.3rem; display: block; margin-bottom: 4px; }
+.feeling-btn.selected { border-color: var(--primary); background: var(--primary-10); }
+
+/* === POSITION SELECTOR === */
+.position-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.position-btn {
+  padding: 12px 8px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  text-align: center;
+  cursor: pointer;
+  font-family: inherit; font-size: 0.78rem; font-weight: 600;
+  transition: all var(--transition);
+}
+.position-btn.selected { border-color: var(--primary); background: var(--primary-10); }
+
+/* === TOGGLE === */
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0;
+}
+.toggle-label { font-size: 0.85rem; font-weight: 500; }
+.toggle {
+  position: relative;
+  width: 48px; height: 28px;
+  background: var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+.toggle.on { background: var(--primary); }
+.toggle::after {
+  content: '';
+  position: absolute; top: 3px; left: 3px;
+  width: 22px; height: 22px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--transition);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.toggle.on::after { transform: translateX(20px); }
+
+/* === CHECKLIST === */
+.checklist-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--bg);
+  cursor: pointer;
+}
+.checklist-item:last-child { border-bottom: none; }
+.checkbox {
+  width: 22px; height: 22px; flex-shrink: 0;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-xs);
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition);
+  font-size: 0.75rem; color: white;
+}
+.checkbox.checked { background: var(--primary); border-color: var(--primary); }
+.checklist-label { font-size: 0.82rem; }
+
+/* === TEAM DOT === */
+.team-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.team-dot.blue { background: var(--blue); }
+.team-dot.red { background: var(--red); }
+.team-dot.grey { background: var(--grey); }
+
+/* === STAT GRID === */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+.stat-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.stat-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.stat-box {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 14px 8px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.stat-value {
+  font-weight: 700;
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.stat-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+/* === INSIGHT CARDS === */
+.insight-section { margin-bottom: 20px; }
+.insight-section-title {
+  font-size: 0.82rem; font-weight: 700;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.insight-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow);
+}
+.insight-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.insight-tag {
+  font-size: 0.62rem; font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.insight-tag.positive { background: var(--positive-bg); color: var(--positive); }
+.insight-tag.warning { background: var(--warning-bg); color: var(--warning); }
+.insight-tag.neutral { background: var(--primary-10); color: var(--primary); }
+.insight-title { font-size: 0.82rem; font-weight: 700; }
+.insight-body { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+.insight-stat { font-weight: 700; color: var(--text); }
+
+/* === TABS === */
+.tab-row {
+  display: flex; gap: 4px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.tab-btn {
+  padding: 8px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  font-family: inherit; font-size: 0.75rem; font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition);
+}
+.tab-btn.active { border-color: var(--primary); background: var(--primary); color: var(--on-primary); }
+
+/* === MODAL === */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal {
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 8px 16px 24px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-drag {
+  width: 36px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 4px auto 16px;
+}
+.modal-title { font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
+
+/* === TOAST === */
+.toast {
+  position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+  z-index: 300;
+  background: var(--primary);
+  color: var(--on-primary);
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  font-size: 0.82rem; font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+  max-width: calc(100% - 32px);
+  text-align: center;
+  display: flex; align-items: center; gap: 10px;
+}
+.toast.show { opacity: 1; pointer-events: auto; }
+.toast-undo {
+  background: rgba(255,255,255,0.2);
+  border: none; color: white;
+  padding: 4px 10px; border-radius: var(--radius-xs);
+  font-family: inherit; font-size: 0.75rem; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+}
+
+/* === PROGRESS BAR === */
+.progress-bar {
+  width: 100%; height: 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+.progress-fill.green { background: var(--positive); }
+
+/* === FOCUS POINTS === */
+.focus-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+}
+.focus-result-btns { display: flex; gap: 4px; flex-shrink: 0; }
+.focus-result-btn {
+  padding: 4px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface);
+  font-family: inherit; font-size: 0.62rem; font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.focus-result-btn.selected-niet { border-color: var(--negative); background: var(--negative-bg); color: var(--negative); }
+.focus-result-btn.selected-deels { border-color: var(--warning); background: var(--warning-bg); color: var(--warning); }
+.focus-result-btn.selected-gehaald { border-color: var(--positive); background: var(--positive-bg); color: var(--positive); }
+
+/* === SECTION DIVIDER === */
+.section-title {
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 20px 0 10px;
+}
+
+/* === EMPTY STATE === */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+}
+.empty-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5; }
+.empty-state h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.empty-state p { font-size: 0.82rem; }
+
+/* === CAREER TABLE === */
+.career-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--bg);
+  font-size: 0.8rem;
+}
+.career-row:last-child { border-bottom: none; }
+.career-team { font-weight: 600; }
+.career-stats { color: var(--text-muted); text-align: right; }
+
+/* === GOAL CARD === */
+.goal-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow);
+}
+.goal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.goal-title { font-size: 0.82rem; font-weight: 700; }
+.goal-badge {
+  font-size: 0.65rem; font-weight: 700;
+  padding: 2px 8px; border-radius: var(--radius-xs);
+}
+.goal-badge.active { background: var(--positive-bg); color: var(--positive); }
+.goal-badge.reached { background: var(--primary-10); color: var(--primary); }
+
+/* === CHART === */
+.chart-container { margin: 12px 0; overflow-x: auto; }
+.chart-container svg { display: block; }
+
+/* === MISC === */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+.text-center { text-align: center; }
+.text-muted { color: var(--text-muted); }
+.text-sm { font-size: 0.78rem; }
+.text-xs { font-size: 0.7rem; }
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-16 { margin-bottom: 16px; }
+.fw-600 { font-weight: 600; }
+.fw-700 { font-weight: 700; }
+
+@media (max-width: 375px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .bottomnav button { font-size: 0.55rem; }
+  .bottomnav button .nav-icon { font-size: 1rem; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-logo">Futsal Coach</span>
+  <span class="topbar-initials" onclick="navigateTo('pageProfiel')">IL</span>
+</div>
+
+<div class="page active" id="pageDashboard"><div id="dashboardContent"></div></div>
+<div class="page" id="pageEvaluatie"><div id="evaluatieContent"></div></div>
+<div class="page" id="pageHistoriek"><div id="historiekContent"></div></div>
+<div class="page" id="pageStats"><div id="statsContent"></div></div>
+<div class="page" id="pageCoaching"><div id="coachingContent"></div></div>
+<div class="page" id="pageProfiel"><div id="profielContent"></div></div>
+
+<div class="bottomnav">
+  <button class="active" data-page="pageDashboard">
+    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Home</span>
+  </button>
+  <button data-page="pageEvaluatie">
+    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+    <span>Evaluatie</span>
+  </button>
+  <button data-page="pageHistoriek">
+    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span>Historiek</span>
+  </button>
+  <button data-page="pageStats">
+    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span>Stats</span>
+  </button>
+  <button data-page="pageCoaching">
+    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+    <span>Coaching</span>
+  </button>
+  <button data-page="pageProfiel">
+    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Profiel</span>
+  </button>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+/* ============================================================
+   DATA LAYER
+   ============================================================ */
+
+const STORAGE_KEY = 'futsalCoach_v1';
+
+const HISTORICAL_SEASONS = [
+  { season: '2025/26', team: 'Ijsselmeervogels', bond: 'KNVB', position: '7e/12',
+    comp: { played: 18, goals: 19, assists: 11 },
+    friendly: { played: 3, goals: 1, assists: 2 },
+    cup: { played: 0, goals: 0, assists: 0 } },
+  { season: '2025/26', team: 'Joga Bonito', bond: 'SRZA', position: '3e',
+    comp: { played: 0, goals: 0, assists: 0 },
+    friendly: { played: 0, goals: 0, assists: 0 },
+    cup: { played: 0, goals: 0, assists: 0 } },
+  { season: '2024/25', team: 'ZVV Adelaars', bond: 'KNVB', position: '5e/12',
+    comp: { played: 20, goals: 20, assists: 7 },
+    friendly: { played: 0, goals: 0, assists: 0 },
+    cup: { played: 1, goals: 0, assists: 0 } },
+  { season: '2024/25', team: 'Joga Bonito', bond: 'SRZA', position: '2e',
+    comp: { played: 0, goals: 0, assists: 0 },
+    friendly: { played: 0, goals: 0, assists: 0 },
+    cup: { played: 0, goals: 0, assists: 0 } }
+];
+
+function defaultData() {
+  return {
+    profile: {
+      name: 'Irving Liesdek',
+      birthDate: '1991-07-15',
+      foot: 'Rechts',
+      position: 'Flank (links)',
+      numbers: { 'Joga Bonito': 7, 'ZVV Adelaars': 7, 'Ijsselmeervogels': 17 }
+    },
+    activities: [],
+    historicalSeasons: JSON.parse(JSON.stringify(HISTORICAL_SEASONS)),
+    goals: [],
+    settings: { currentSeason: '2026/27' },
+    nextActivityId: 1,
+    nextGoalId: 1
+  };
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (!d.nextActivityId) d.nextActivityId = (d.activities || []).length + 1;
+      if (!d.nextGoalId) d.nextGoalId = (d.goals || []).length + 1;
+      if (!d.goals) d.goals = [];
+      if (!d.historicalSeasons) d.historicalSeasons = JSON.parse(JSON.stringify(HISTORICAL_SEASONS));
+      return d;
+    }
+  } catch (e) {}
+  return defaultData();
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+}
+
+let DB = loadData();
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+
+function getAge(birthDate) {
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age;
+}
+
+function formatDate(d) {
+  try { return new Date(d + 'T12:00:00').toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' }); }
+  catch (e) { return d; }
+}
+
+function formatDateLong(d) {
+  try { return new Date(d + 'T12:00:00').toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
+  catch (e) { return d; }
+}
+
+function dribbleRate(attempts, success) {
+  if (!attempts) return 0;
+  return Math.round((success / attempts) * 100);
+}
+
+function shotAccuracy(shots, onTarget) {
+  if (!shots) return 0;
+  return Math.round((onTarget / shots) * 100);
+}
+
+function conversionRate(shots, goals) {
+  if (!shots) return 0;
+  return Math.round((goals / shots) * 100);
+}
+
+function teamColorClass(team) {
+  if (team === 'Joga Bonito') return 'blue';
+  if (team === 'Ijsselmeervogels') return 'red';
+  return 'grey';
+}
+
+function teamColor(team) {
+  if (team === 'Joga Bonito') return 'var(--blue)';
+  if (team === 'Ijsselmeervogels') return 'var(--red)';
+  return 'var(--grey)';
+}
+
+function feelingLabel(f) {
+  const map = { ontevreden: 'Ontevreden', neutraal: 'Neutraal', tevreden: 'Tevreden', 'zeer tevreden': 'Zeer tevreden' };
+  return map[f] || f;
+}
+
+function feelingEmoji(f) {
+  const map = { ontevreden: '\u{1F61E}', neutraal: '\u{1F610}', tevreden: '\u{1F642}', 'zeer tevreden': '\u{1F929}' };
+  return map[f] || '';
+}
+
+function positionLabel(p) {
+  const map = { 'flank-links': 'Flank links', 'flank-rechts': 'Flank rechts', 'laatste-man': 'Laatste man', 'spits': 'Spits' };
+  return map[p] || p;
+}
+
+function generateMondayDates() {
+  const dates = [];
+  let d = new Date('2026-07-06T12:00:00');
+  const end = new Date('2027-07-01T12:00:00');
+  while (d <= end) {
+    dates.push(d.toISOString().split('T')[0]);
+    d.setDate(d.getDate() + 7);
+  }
+  return dates;
+}
+
+function getNextMonday() {
+  const today = new Date();
+  const mondays = generateMondayDates();
+  for (const m of mondays) {
+    if (new Date(m + 'T12:00:00') >= today) return m;
+  }
+  return mondays[mondays.length - 1];
+}
+
+function getActivitiesWithPerformance() {
+  return DB.activities.filter(a => a.type === 'match' || (a.type === 'training' && a.hasPartijspel));
+}
+
+function avg(arr) {
+  if (!arr.length) return 0;
+  return arr.reduce((s, v) => s + v, 0) / arr.length;
+}
+
+const KAIZEN_QUOTES = [
+  'Kaizen: 1% beter elke dag. Na een jaar ben je 37x beter.',
+  'Shoshin: begin elke sessie met een open geest. Sta open voor verbetering.',
+  'Gambatte: geef alles, ongeacht het resultaat. Consistentie wint.',
+  'Hansei: eerlijke zelfreflectie is de basis van groei.',
+  'PDCA: Plan. Do. Check. Act. Herhaal.',
+  'Val 7 keer, sta 8 keer op. — Japans spreekwoord',
+  'De reis van duizend mijl begint met een enkele stap. — Lao Tzu',
+  'Focus niet op perfectie, maar op vooruitgang.',
+  'Een slechte training is beter dan geen training.',
+  'Discipline is de brug tussen doelen en resultaten.',
+  'Wie elke dag 1 dribbel beter maakt, is na 100 dagen een ander speler.',
+  'Het verschil tussen willen en doen is beginnen.',
+  'Muri: vermijd overbelasting. Herstel is onderdeel van groei.',
+  'Ichi-go ichi-e: elke wedstrijd is uniek. Wees er volledig bij.',
+  'Kintsugi: fouten maken je sterker, niet zwakker.',
+  'Wabi-sabi: omarm imperfectie en groei erdoorheen.',
+  'De beste speler op het veld is degene die het hardst werkt.',
+  'Data liegt niet. Gebruik het om slimmer te trainen.',
+  'Kleine stappen, grote veranderingen. Dat is Kaizen.',
+  'Je hoeft niet de beste te zijn. Je moet beter zijn dan gisteren.'
+];
+
+/* ============================================================
+   NAVIGATION + MODAL + TOAST
+   ============================================================ */
+
+document.querySelectorAll('.bottomnav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.bottomnav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === btn.dataset.page));
+    renderPage(btn.dataset.page);
+  });
+});
+
+function navigateTo(pageId) {
+  const btn = document.querySelector(`.bottomnav button[data-page="${pageId}"]`);
+  if (btn) btn.click();
+}
+
+function renderPage(id) {
+  switch (id) {
+    case 'pageDashboard': renderDashboard(); break;
+    case 'pageEvaluatie': renderEvaluatie(); break;
+    case 'pageHistoriek': renderHistoriek(); break;
+    case 'pageStats': renderStats(); break;
+    case 'pageCoaching': renderCoaching(); break;
+    case 'pageProfiel': renderProfiel(); break;
+  }
+}
+
+function openModal(html) {
+  const mc = document.getElementById('modalContent');
+  mc.innerHTML = '<div class="modal-drag"></div>' + html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+let toastTimeout, toastFadeTimeout;
+function showToast(text, undoFn) {
+  const t = document.getElementById('toast');
+  clearTimeout(toastTimeout);
+  clearTimeout(toastFadeTimeout);
+  t.innerHTML = text + (undoFn ? `<button class="toast-undo" onclick="event.stopPropagation();(${undoFn.toString()})();hideToast()">Ongedaan maken</button>` : '');
+  t.classList.remove('show');
+  requestAnimationFrame(() => { t.classList.add('show'); });
+  toastTimeout = setTimeout(() => {
+    t.classList.remove('show');
+    toastFadeTimeout = setTimeout(() => { t.innerHTML = ''; }, 300);
+  }, 3000);
+}
+
+function hideToast() {
+  const t = document.getElementById('toast');
+  clearTimeout(toastTimeout);
+  clearTimeout(toastFadeTimeout);
+  t.classList.remove('show');
+}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+
+function renderDashboard() {
+  const c = document.getElementById('dashboardContent');
+  const activities = DB.activities;
+  const now = new Date();
+  const dayIdx = Math.floor(now.getTime() / 86400000);
+  const quote = KAIZEN_QUOTES[dayIdx % KAIZEN_QUOTES.length];
+
+  let h = '';
+
+  h += `<div class="card" style="text-align:center;padding:20px 16px">
+    <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Welkom, Irving</div>
+    <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;font-style:italic">"${quote}"</p>
+  </div>`;
+
+  const thisMonth = activities.filter(a => {
+    const d = new Date(a.date);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+  const perfActivities = getActivitiesWithPerformance();
+  const avgDrib = perfActivities.length ? Math.round(avg(perfActivities.filter(a => a.dribbleAttempts > 0).map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess)))) : 0;
+  const totalGoals = activities.reduce((s, a) => s + (a.goals || 0), 0);
+  const streak = calcActivityStreak();
+
+  h += `<div class="stat-grid stat-grid-2" style="margin-top:0">
+    <div class="stat-box">
+      <div class="stat-value">${thisMonth.length}</div>
+      <div class="stat-label">Deze maand</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">${streak}</div>
+      <div class="stat-label">Weken streak</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">${avgDrib}%</div>
+      <div class="stat-label">Gem. dribbel%</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">${totalGoals}</div>
+      <div class="stat-label">Doelpunten</div>
+    </div>
+  </div>`;
+
+  if (activities.length) {
+    const last = activities[activities.length - 1];
+    const dr = dribbleRate(last.dribbleAttempts, last.dribbleSuccess);
+    h += `<div class="card">
+      <div class="card-header">
+        <span class="card-title">Laatste activiteit</span>
+        <span class="card-subtitle">${formatDate(last.date)}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span class="team-dot ${last.type === 'match' ? teamColorClass(last.team) : 'grey'}"></span>
+        <span style="font-weight:600;font-size:0.85rem">${last.type === 'match' ? 'Wedstrijd' + (last.opponent ? ' — ' + last.opponent : '') : 'Training'}</span>
+      </div>
+      ${last.dribbleAttempts ? `<div style="font-size:0.78rem;color:var(--text-muted)">
+        ${last.dribbleSuccess}/${last.dribbleAttempts} dribbels (${dr}%) &middot; ${last.goals || 0}G ${last.assists || 0}A &middot; ${feelingEmoji(last.feeling)} ${feelingLabel(last.feeling)}
+      </div>` : `<div style="font-size:0.78rem;color:var(--text-muted)">${feelingEmoji(last.feeling)} ${feelingLabel(last.feeling)}</div>`}
+    </div>`;
+  }
+
+  const nextMon = getNextMonday();
+  h += `<div class="card">
+    <div class="card-header">
+      <span class="card-title">Volgende training</span>
+      <span class="card-subtitle">${formatDate(nextMon)}</span>
+    </div>
+    <div style="font-size:0.78rem;color:var(--text-muted)">Sporthal de Toekomst, Spakenburg &middot; 20:00 - 21:30</div>
+  </div>`;
+
+  if (DB.goals.filter(g => g.active).length) {
+    const activeGoals = DB.goals.filter(g => g.active);
+    h += `<div class="card">
+      <div class="card-title" style="margin-bottom:10px">Actieve doelen</div>`;
+    activeGoals.slice(0, 3).forEach(g => {
+      const progress = calcGoalProgress(g);
+      h += `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:4px">
+          <span style="font-weight:600">${g.label}</span>
+          <span style="color:var(--text-muted)">${progress}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill${progress >= 100 ? ' green' : ''}" style="width:${Math.min(progress, 100)}%"></div></div>
+      </div>`;
+    });
+    h += `</div>`;
+  }
+
+  h += `<button class="btn btn-primary btn-block" style="margin-top:4px" onclick="navigateTo('pageEvaluatie')">Evaluatie invullen</button>`;
+
+  c.innerHTML = h;
+}
+
+function calcActivityStreak() {
+  if (!DB.activities.length) return 0;
+  const now = new Date();
+  let streak = 0;
+  const weekStart = d => {
+    const dt = new Date(d);
+    dt.setDate(dt.getDate() - dt.getDay() + 1);
+    return dt.toISOString().split('T')[0];
+  };
+  const currentWeek = weekStart(now);
+  const weeks = new Set(DB.activities.map(a => weekStart(a.date)));
+  let check = new Date(currentWeek + 'T12:00:00');
+  while (weeks.has(check.toISOString().split('T')[0])) {
+    streak++;
+    check.setDate(check.getDate() - 7);
+  }
+  return streak;
+}
+
+function calcGoalProgress(goal) {
+  const perf = getActivitiesWithPerformance();
+  if (!perf.length) return 0;
+  if (goal.type === 'percentage') {
+    if (goal.metric === 'dribbleRate') {
+      const recent = perf.filter(a => a.dribbleAttempts > 0).slice(-5);
+      if (!recent.length) return 0;
+      const rate = avg(recent.map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess)));
+      return Math.round((rate / goal.target) * 100);
+    }
+    if (goal.metric === 'shotAccuracy') {
+      const recent = perf.filter(a => a.shots > 0).slice(-5);
+      if (!recent.length) return 0;
+      const rate = avg(recent.map(a => shotAccuracy(a.shots, a.shotsOnTarget)));
+      return Math.round((rate / goal.target) * 100);
+    }
+    if (goal.metric === 'conversionRate') {
+      const recent = perf.filter(a => a.shots > 0).slice(-5);
+      if (!recent.length) return 0;
+      const rate = avg(recent.map(a => conversionRate(a.shots, a.goals)));
+      return Math.round((rate / goal.target) * 100);
+    }
+  }
+  if (goal.type === 'streak') {
+    let streak = 0;
+    const sorted = [...perf].sort((a, b) => a.date.localeCompare(b.date));
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      if (goal.metric === 'goals' && sorted[i].goals > 0) streak++;
+      else if (goal.metric === 'dribbleAttempts' && sorted[i].dribbleAttempts >= (goal.minValue || 1)) streak++;
+      else break;
+    }
+    return Math.round((streak / goal.target) * 100);
+  }
+  if (goal.type === 'volume') {
+    const recent = perf.slice(-5);
+    if (!recent.length) return 0;
+    const avgVal = avg(recent.map(a => a[goal.metric] || 0));
+    return Math.round((avgVal / goal.target) * 100);
+  }
+  return 0;
+}
+
+/* ============================================================
+   EVALUATIE FORM
+   ============================================================ */
+
+let formState = null;
+
+function initFormState(type) {
+  formState = {
+    type: type,
+    date: type === 'training' ? getNextMonday() : new Date().toISOString().split('T')[0],
+    timeSlot: '20:00-21:30',
+    customTime: '',
+    location: 'Sporthal de Toekomst, Spakenburg',
+    duration: 90,
+    calories: 1000,
+    team: 'Joga Bonito',
+    bond: 'SRZA',
+    matchType: 'competitie',
+    opponent: '',
+    playMinutes: '',
+    hasPartijspel: false,
+    dribbleAttempts: '',
+    dribbleSuccess: '',
+    shots: '',
+    shotsOnTarget: '',
+    goals: '',
+    assists: '',
+    feeling: 'neutraal',
+    notes: '',
+    preparation: {
+      tiredBody: false,
+      poorSleep: false,
+      lowFitness: false,
+      lowConfidence: false,
+      lowFocus: false,
+      dontKnow: false,
+      weight: '',
+      waterLiters: '',
+      other: ''
+    },
+    mainPosition: 'flank-links',
+    positionReason: '',
+    focusPoints: []
+  };
+}
+
+function renderEvaluatie() {
+  const c = document.getElementById('evaluatieContent');
+  if (!formState) initFormState('training');
+  const fs = formState;
+  const showPerf = fs.type === 'match' || (fs.type === 'training' && fs.hasPartijspel);
+
+  let h = '';
+
+  h += `<div class="type-selector">
+    <div class="type-btn ${fs.type === 'training' ? 'active' : ''}" onclick="formState.type='training';formState.bond='';renderEvaluatie()">Training</div>
+    <div class="type-btn ${fs.type === 'match' ? 'active' : ''}" onclick="formState.type='match';renderEvaluatie()">Wedstrijd</div>
+  </div>`;
+
+  if (fs.type === 'training') {
+    const mondays = generateMondayDates();
+    h += `<div class="form-group">
+      <label class="form-label">Datum</label>
+      <select class="form-select" onchange="formState.date=this.value">
+        ${mondays.map(m => `<option value="${m}" ${fs.date === m ? 'selected' : ''}>${formatDateLong(m)}</option>`).join('')}
+      </select>
+    </div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Tijdstip</label>
+      <select class="form-select" onchange="formState.timeSlot=this.value;renderEvaluatie()">
+        <option value="20:00-21:30" ${fs.timeSlot === '20:00-21:30' ? 'selected' : ''}>20:00 - 21:30</option>
+        <option value="19:30-21:00" ${fs.timeSlot === '19:30-21:00' ? 'selected' : ''}>19:30 - 21:00</option>
+        <option value="overig" ${fs.timeSlot === 'overig' ? 'selected' : ''}>Overig</option>
+      </select>
+    </div>`;
+    if (fs.timeSlot === 'overig') {
+      h += `<div class="form-group">
+        <input class="form-input" type="text" placeholder="bijv. 18:00-19:30" value="${fs.customTime}" onchange="formState.customTime=this.value">
+      </div>`;
+    }
+
+    h += `<div class="form-group">
+      <label class="form-label">Locatie</label>
+      <input class="form-input" type="text" value="${fs.location}" onchange="formState.location=this.value">
+    </div>`;
+
+    h += `<div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Duur (min)</label>
+        <input class="form-input" type="number" inputmode="numeric" value="${fs.duration}" onchange="formState.duration=parseInt(this.value)||0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Calorieën</label>
+        <input class="form-input" type="number" inputmode="numeric" value="${fs.calories}" onchange="formState.calories=parseInt(this.value)||0">
+      </div>
+    </div>`;
+
+    h += `<div class="toggle-row" onclick="formState.hasPartijspel=!formState.hasPartijspel;renderEvaluatie()">
+      <span class="toggle-label">Was er een partijspel?</span>
+      <div class="toggle ${fs.hasPartijspel ? 'on' : ''}"></div>
+    </div>`;
+  }
+
+  if (fs.type === 'match') {
+    h += `<div class="form-group">
+      <label class="form-label">Datum</label>
+      <input class="form-input" type="date" value="${fs.date}" onchange="formState.date=this.value">
+    </div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Type wedstrijd</label>
+      <select class="form-select" onchange="formState.matchType=this.value">
+        <option value="competitie" ${fs.matchType === 'competitie' ? 'selected' : ''}>Competitie</option>
+        <option value="beker" ${fs.matchType === 'beker' ? 'selected' : ''}>Beker</option>
+        <option value="vriendschappelijk" ${fs.matchType === 'vriendschappelijk' ? 'selected' : ''}>Vriendschappelijk</option>
+        <option value="toernooi" ${fs.matchType === 'toernooi' ? 'selected' : ''}>Toernooi</option>
+      </select>
+    </div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Team</label>
+      <div class="type-selector" style="margin-bottom:0">
+        <div class="type-btn ${fs.team === 'Joga Bonito' ? 'active' : ''}" style="border-color:${fs.team === 'Joga Bonito' ? 'var(--blue)' : 'var(--border)'};${fs.team === 'Joga Bonito' ? 'background:var(--blue-bg)' : ''}" onclick="formState.team='Joga Bonito';formState.bond='SRZA';renderEvaluatie()">
+          <span class="team-dot blue"></span> Joga Bonito
+        </div>
+        <div class="type-btn ${fs.team === 'Ijsselmeervogels' ? 'active' : ''}" style="border-color:${fs.team === 'Ijsselmeervogels' ? 'var(--red)' : 'var(--border)'};${fs.team === 'Ijsselmeervogels' ? 'background:var(--red-bg)' : ''}" onclick="formState.team='Ijsselmeervogels';formState.bond='KNVB';renderEvaluatie()">
+          <span class="team-dot red"></span> Ijsselmeervogels
+        </div>
+      </div>
+    </div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Bond</label>
+      <input class="form-input" type="text" value="${fs.bond}" disabled>
+    </div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Tegenstander</label>
+      <input class="form-input" type="text" value="${fs.opponent}" onchange="formState.opponent=this.value" placeholder="Naam tegenstander">
+    </div>`;
+
+    h += `<div class="form-group">
+      <label class="form-label">Speelminuten (circa)</label>
+      <input class="form-input" type="number" inputmode="numeric" value="${fs.playMinutes}" onchange="formState.playMinutes=this.value" placeholder="bijv. 30">
+    </div>`;
+  }
+
+  if (showPerf) {
+    h += `<div class="section-title">Prestatie</div>`;
+
+    h += `<div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Dribbelpogingen</label>
+        <input class="form-input" type="number" inputmode="numeric" min="0" value="${fs.dribbleAttempts}" onchange="formState.dribbleAttempts=this.value;renderEvaluatie()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Geslaagd</label>
+        <input class="form-input" type="number" inputmode="numeric" min="0" max="${parseInt(fs.dribbleAttempts)||999}" value="${fs.dribbleSuccess}" onchange="formState.dribbleSuccess=this.value">
+      </div>
+    </div>`;
+
+    h += `<div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Schoten</label>
+        <input class="form-input" type="number" inputmode="numeric" min="0" value="${fs.shots}" onchange="formState.shots=this.value;renderEvaluatie()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Op doel</label>
+        <input class="form-input" type="number" inputmode="numeric" min="0" max="${parseInt(fs.shots)||999}" value="${fs.shotsOnTarget}" onchange="formState.shotsOnTarget=this.value">
+      </div>
+    </div>`;
+
+    h += `<div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Doelpunten</label>
+        <input class="form-input" type="number" inputmode="numeric" min="0" value="${fs.goals}" onchange="formState.goals=this.value">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assists</label>
+        <input class="form-input" type="number" inputmode="numeric" min="0" value="${fs.assists}" onchange="formState.assists=this.value">
+      </div>
+    </div>`;
+  }
+
+  h += `<div class="section-title">Evaluatie</div>`;
+
+  h += `<div class="form-group">
+    <label class="form-label">Met welk gevoel evalueer je deze prestatie?</label>
+    <div class="feeling-row">
+      ${['ontevreden','neutraal','tevreden','zeer tevreden'].map(f => `
+        <div class="feeling-btn ${fs.feeling === f ? 'selected' : ''}" onclick="formState.feeling='${f}';renderEvaluatie()">
+          <span class="feeling-emoji">${feelingEmoji(f)}</span>${feelingLabel(f)}
+        </div>`).join('')}
+    </div>
+  </div>`;
+
+  h += `<div class="form-group">
+    <label class="form-label">Toelichting</label>
+    <textarea class="form-textarea" placeholder="Wat ging goed? Wat kan beter?" onchange="formState.notes=this.value">${fs.notes}</textarea>
+  </div>`;
+
+  h += `<div class="section-title">Voorbereiding</div>`;
+  h += `<div class="form-group"><label class="form-label">Terugblik op je voorbereiding</label>`;
+
+  const prepItems = [
+    ['tiredBody', 'Fysiek moe (zware benen / vermoeidheid)'],
+    ['poorSleep', 'Slechte nachtrust'],
+    ['lowFitness', 'Weinig conditie'],
+    ['lowConfidence', 'Weinig zelfvertrouwen'],
+    ['lowFocus', 'Weinig focus'],
+    ['dontKnow', 'Weet ik niet']
+  ];
+
+  prepItems.forEach(([key, label]) => {
+    h += `<div class="checklist-item" onclick="formState.preparation.${key}=!formState.preparation.${key};renderEvaluatie()">
+      <div class="checkbox ${fs.preparation[key] ? 'checked' : ''}">${fs.preparation[key] ? '✓' : ''}</div>
+      <span class="checklist-label">${label}</span>
+    </div>`;
+  });
+  h += `</div>`;
+
+  h += `<div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Gewicht vanochtend (kg)</label>
+      <input class="form-input" type="number" inputmode="decimal" step="0.1" value="${fs.preparation.weight}" onchange="formState.preparation.weight=this.value" placeholder="bijv. 78.5">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Water gedronken (L)</label>
+      <input class="form-input" type="number" inputmode="decimal" step="0.1" value="${fs.preparation.waterLiters}" onchange="formState.preparation.waterLiters=this.value" placeholder="bijv. 2.0">
+    </div>
+  </div>`;
+
+  h += `<div class="form-group">
+    <label class="form-label">Anders, namelijk</label>
+    <input class="form-input" type="text" value="${fs.preparation.other}" onchange="formState.preparation.other=this.value" placeholder="Optioneel">
+  </div>`;
+
+  h += `<div class="section-title">Positie</div>`;
+  h += `<div class="form-group">
+    <label class="form-label">Op welke positie speelde je het meest?</label>
+    <div class="position-row">
+      ${['flank-links','flank-rechts','laatste-man','spits'].map(p => `
+        <div class="position-btn ${fs.mainPosition === p ? 'selected' : ''}" onclick="formState.mainPosition='${p}';renderEvaluatie()">${positionLabel(p)}</div>`).join('')}
+    </div>
+  </div>`;
+
+  h += `<div class="form-group">
+    <label class="form-label">Hoe kwam dat?</label>
+    <textarea class="form-textarea" placeholder="Waarom speelde je op deze positie?" onchange="formState.positionReason=this.value" style="min-height:60px">${fs.positionReason}</textarea>
+  </div>`;
+
+  h += `<div class="section-title">Focus</div>`;
+  h += `<div class="form-group">
+    <label class="form-label">Focuspunten (optioneel, max 3)</label>
+    <p class="form-hint" style="margin-bottom:8px">Waar wilde je op letten? Evalueer achteraf hoe het ging.</p>`;
+
+  for (let i = 0; i < 3; i++) {
+    const fp = fs.focusPoints[i] || { text: '', result: '' };
+    h += `<div class="focus-item">
+      <input class="form-input" type="text" value="${fp.text}" placeholder="Focus ${i + 1}" style="flex:1;padding:8px 10px;font-size:0.8rem" onchange="updateFocusPoint(${i},'text',this.value)">
+      ${fp.text ? `<div class="focus-result-btns">
+        <div class="focus-result-btn ${fp.result === 'niet' ? 'selected-niet' : ''}" onclick="updateFocusPoint(${i},'result','niet')">Niet</div>
+        <div class="focus-result-btn ${fp.result === 'deels' ? 'selected-deels' : ''}" onclick="updateFocusPoint(${i},'result','deels')">Deels</div>
+        <div class="focus-result-btn ${fp.result === 'gehaald' ? 'selected-gehaald' : ''}" onclick="updateFocusPoint(${i},'result','gehaald')">Gehaald</div>
+      </div>` : ''}
+    </div>`;
+  }
+  h += `</div>`;
+
+  h += `<button class="btn btn-primary btn-block" style="margin-top:20px" onclick="saveActivity()">Opslaan</button>`;
+
+  c.innerHTML = h;
+}
+
+function updateFocusPoint(idx, field, value) {
+  while (formState.focusPoints.length <= idx) formState.focusPoints.push({ text: '', result: '' });
+  formState.focusPoints[idx][field] = value;
+  renderEvaluatie();
+}
+
+function saveActivity() {
+  if (!formState) return;
+  const fs = formState;
+  if (fs.type === 'match' && !fs.opponent.trim()) {
+    showToast('Vul een tegenstander in');
+    return;
+  }
+  const activity = {
+    id: 'a' + DB.nextActivityId++,
+    type: fs.type,
+    date: fs.date,
+    timeSlot: fs.timeSlot === 'overig' ? fs.customTime : fs.timeSlot,
+    location: fs.location,
+    duration: fs.duration,
+    calories: fs.calories,
+    team: fs.type === 'match' ? fs.team : '',
+    bond: fs.type === 'match' ? fs.bond : '',
+    matchType: fs.type === 'match' ? fs.matchType : '',
+    opponent: fs.type === 'match' ? fs.opponent.trim() : '',
+    playMinutes: fs.type === 'match' ? (parseInt(fs.playMinutes) || null) : null,
+    hasPartijspel: fs.type === 'training' ? fs.hasPartijspel : false,
+    dribbleAttempts: parseInt(fs.dribbleAttempts) || 0,
+    dribbleSuccess: parseInt(fs.dribbleSuccess) || 0,
+    shots: parseInt(fs.shots) || 0,
+    shotsOnTarget: parseInt(fs.shotsOnTarget) || 0,
+    goals: parseInt(fs.goals) || 0,
+    assists: parseInt(fs.assists) || 0,
+    feeling: fs.feeling,
+    notes: fs.notes.trim(),
+    preparation: {
+      tiredBody: fs.preparation.tiredBody,
+      poorSleep: fs.preparation.poorSleep,
+      lowFitness: fs.preparation.lowFitness,
+      lowConfidence: fs.preparation.lowConfidence,
+      lowFocus: fs.preparation.lowFocus,
+      dontKnow: fs.preparation.dontKnow,
+      weight: parseFloat(fs.preparation.weight) || null,
+      waterLiters: parseFloat(fs.preparation.waterLiters) || null,
+      other: fs.preparation.other.trim()
+    },
+    mainPosition: fs.mainPosition,
+    positionReason: fs.positionReason.trim(),
+    focusPoints: fs.focusPoints.filter(fp => fp.text.trim())
+  };
+  DB.activities.push(activity);
+  DB.activities.sort((a, b) => a.date.localeCompare(b.date));
+  saveData();
+  formState = null;
+  showToast('Evaluatie opgeslagen!');
+  navigateTo('pageHistoriek');
+}
+
+/* ============================================================
+   HISTORIEK
+   ============================================================ */
+
+let historiekFilter = { type: 'all', team: 'all' };
+
+function renderHistoriek() {
+  const c = document.getElementById('historiekContent');
+  let filtered = [...DB.activities].reverse();
+
+  if (historiekFilter.type !== 'all') filtered = filtered.filter(a => a.type === historiekFilter.type);
+  if (historiekFilter.team !== 'all') filtered = filtered.filter(a => a.team === historiekFilter.team);
+
+  let h = `<div class="tab-row">
+    <button class="tab-btn ${historiekFilter.type === 'all' ? 'active' : ''}" onclick="historiekFilter.type='all';renderHistoriek()">Alles</button>
+    <button class="tab-btn ${historiekFilter.type === 'training' ? 'active' : ''}" onclick="historiekFilter.type='training';renderHistoriek()">Training</button>
+    <button class="tab-btn ${historiekFilter.type === 'match' ? 'active' : ''}" onclick="historiekFilter.type='match';renderHistoriek()">Wedstrijd</button>
+  </div>`;
+
+  if (historiekFilter.type === 'match' || historiekFilter.type === 'all') {
+    h += `<div class="tab-row">
+      <button class="tab-btn ${historiekFilter.team === 'all' ? 'active' : ''}" onclick="historiekFilter.team='all';renderHistoriek()">Alle teams</button>
+      <button class="tab-btn ${historiekFilter.team === 'Joga Bonito' ? 'active' : ''}" onclick="historiekFilter.team='Joga Bonito';renderHistoriek()"><span class="team-dot blue"></span>Joga Bonito</button>
+      <button class="tab-btn ${historiekFilter.team === 'Ijsselmeervogels' ? 'active' : ''}" onclick="historiekFilter.team='Ijsselmeervogels';renderHistoriek()"><span class="team-dot red"></span>IJV</button>
+    </div>`;
+  }
+
+  if (!filtered.length) {
+    h += `<div class="empty-state">
+      <div class="empty-icon">\u{1F4CB}</div>
+      <h3>Nog geen activiteiten</h3>
+      <p>Vul je eerste evaluatie in om hier je historie te zien.</p>
+      <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="navigateTo('pageEvaluatie')">Evaluatie invullen</button>
+    </div>`;
+  } else {
+    h += `<p class="text-sm text-muted mb-8">${filtered.length} activiteit${filtered.length !== 1 ? 'en' : ''}</p>`;
+    filtered.forEach(a => {
+      const dr = dribbleRate(a.dribbleAttempts, a.dribbleSuccess);
+      const hasPerf = a.dribbleAttempts > 0 || a.goals > 0 || a.assists > 0;
+      h += `<div class="card" onclick="showActivityDetail('${a.id}')" style="cursor:pointer">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="team-dot ${a.type === 'match' ? teamColorClass(a.team) : 'grey'}"></span>
+            <strong style="font-size:0.85rem">${a.type === 'match' ? 'Wedstrijd' : 'Training'}</strong>
+            ${a.opponent ? `<span style="font-size:0.82rem;color:var(--text-muted)">- ${a.opponent}</span>` : ''}
+          </div>
+          <span style="font-size:0.72rem;color:var(--text-muted)">${formatDate(a.date)}</span>
+        </div>
+        ${hasPerf ? `<div style="display:flex;gap:12px;margin-top:8px;font-size:0.78rem;color:var(--text-muted)">
+          ${a.dribbleAttempts ? `<span>${dr}% dribbel</span>` : ''}
+          ${a.goals ? `<span>${a.goals} goal${a.goals > 1 ? 's' : ''}</span>` : ''}
+          ${a.assists ? `<span>${a.assists} assist${a.assists > 1 ? 's' : ''}</span>` : ''}
+          <span>${feelingEmoji(a.feeling)}</span>
+        </div>` : `<div style="margin-top:6px;font-size:0.78rem;color:var(--text-muted)">${feelingEmoji(a.feeling)} ${feelingLabel(a.feeling)}</div>`}
+      </div>`;
+    });
+  }
+  c.innerHTML = h;
+}
+
+function showActivityDetail(id) {
+  const a = DB.activities.find(x => x.id === id);
+  if (!a) return;
+  const dr = dribbleRate(a.dribbleAttempts, a.dribbleSuccess);
+  const sa = shotAccuracy(a.shots, a.shotsOnTarget);
+  const cr = conversionRate(a.shots, a.goals);
+  const hasPerf = a.dribbleAttempts > 0 || a.shots > 0 || a.goals > 0 || a.assists > 0;
+
+  let h = `<div class="modal-title">${a.type === 'match' ? 'Wedstrijd' : 'Training'} ${formatDateLong(a.date)}</div>`;
+
+  if (a.type === 'match') {
+    h += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <span class="team-dot ${teamColorClass(a.team)}"></span>
+      <span style="font-weight:600">${a.team}</span>
+      <span style="color:var(--text-muted);font-size:0.78rem">${a.bond} &middot; ${a.matchType}</span>
+    </div>`;
+    if (a.opponent) h += `<p style="font-size:0.85rem;margin-bottom:4px"><strong>Tegenstander:</strong> ${a.opponent}</p>`;
+    if (a.playMinutes) h += `<p style="font-size:0.85rem;margin-bottom:4px"><strong>Speelminuten:</strong> ${a.playMinutes} min</p>`;
+  } else {
+    h += `<p style="font-size:0.85rem;margin-bottom:4px"><strong>Locatie:</strong> ${a.location}</p>`;
+    h += `<p style="font-size:0.85rem;margin-bottom:4px"><strong>Tijdstip:</strong> ${a.timeSlot}</p>`;
+    h += `<p style="font-size:0.85rem;margin-bottom:4px"><strong>Duur:</strong> ${a.duration} min &middot; <strong>Calorieën:</strong> ${a.calories}</p>`;
+  }
+
+  if (hasPerf) {
+    h += `<div class="divider"></div>`;
+    h += `<div class="stat-grid" style="margin-bottom:4px">
+      <div class="stat-box"><div class="stat-value">${dr}%</div><div class="stat-label">Dribbel%</div></div>
+      <div class="stat-box"><div class="stat-value">${sa}%</div><div class="stat-label">Schot%</div></div>
+      <div class="stat-box"><div class="stat-value">${a.goals}</div><div class="stat-label">Goals</div></div>
+      <div class="stat-box"><div class="stat-value">${a.assists}</div><div class="stat-label">Assists</div></div>
+    </div>`;
+    h += `<div style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin-bottom:8px">
+      ${a.dribbleSuccess}/${a.dribbleAttempts} dribbels &middot; ${a.shotsOnTarget}/${a.shots} schoten op doel &middot; ${cr}% conversie
+    </div>`;
+  }
+
+  h += `<div class="divider"></div>`;
+  h += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+    <span style="font-size:1.5rem">${feelingEmoji(a.feeling)}</span>
+    <span style="font-weight:600">${feelingLabel(a.feeling)}</span>
+  </div>`;
+  if (a.notes) h += `<p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px">${a.notes}</p>`;
+
+  const prepFlags = [];
+  if (a.preparation.tiredBody) prepFlags.push('Fysiek moe');
+  if (a.preparation.poorSleep) prepFlags.push('Slechte nachtrust');
+  if (a.preparation.lowFitness) prepFlags.push('Weinig conditie');
+  if (a.preparation.lowConfidence) prepFlags.push('Weinig zelfvertrouwen');
+  if (a.preparation.lowFocus) prepFlags.push('Weinig focus');
+  if (a.preparation.dontKnow) prepFlags.push('Weet ik niet');
+  if (prepFlags.length) {
+    h += `<p style="font-size:0.78rem;margin-bottom:4px"><strong>Voorbereiding:</strong> ${prepFlags.join(', ')}</p>`;
+  }
+  if (a.preparation.weight) h += `<p style="font-size:0.78rem;margin-bottom:4px"><strong>Gewicht:</strong> ${a.preparation.weight} kg</p>`;
+  if (a.preparation.waterLiters) h += `<p style="font-size:0.78rem;margin-bottom:4px"><strong>Water:</strong> ${a.preparation.waterLiters} L</p>`;
+  if (a.preparation.other) h += `<p style="font-size:0.78rem;margin-bottom:4px"><strong>Anders:</strong> ${a.preparation.other}</p>`;
+
+  h += `<p style="font-size:0.78rem;margin-bottom:4px"><strong>Positie:</strong> ${positionLabel(a.mainPosition)}</p>`;
+  if (a.positionReason) h += `<p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:4px">${a.positionReason}</p>`;
+
+  if (a.focusPoints && a.focusPoints.length) {
+    h += `<div class="divider"></div><p style="font-size:0.78rem;font-weight:700;margin-bottom:6px">Focuspunten</p>`;
+    a.focusPoints.forEach(fp => {
+      const colors = { niet: 'var(--negative)', deels: 'var(--warning)', gehaald: 'var(--positive)' };
+      const labels = { niet: 'Niet gehaald', deels: 'Deels gehaald', gehaald: 'Gehaald' };
+      h += `<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;padding:4px 0">
+        <span>${fp.text}</span>
+        ${fp.result ? `<span style="color:${colors[fp.result]};font-weight:600;font-size:0.72rem">${labels[fp.result]}</span>` : ''}
+      </div>`;
+    });
+  }
+
+  h += `<div style="display:flex;gap:8px;margin-top:20px">
+    <button class="btn btn-outline" style="flex:1" onclick="deleteActivity('${a.id}')">Verwijderen</button>
+    <button class="btn btn-primary" style="flex:1" onclick="closeModal()">Sluiten</button>
+  </div>`;
+
+  openModal(h);
+}
+
+function deleteActivity(id) {
+  const idx = DB.activities.findIndex(a => a.id === id);
+  if (idx < 0) return;
+  const removed = DB.activities.splice(idx, 1)[0];
+  saveData();
+  closeModal();
+  showToast('Activiteit verwijderd', () => {
+    DB.activities.push(removed);
+    DB.activities.sort((a, b) => a.date.localeCompare(b.date));
+    saveData();
+    renderHistoriek();
+  });
+  renderHistoriek();
+}
+
+/* ============================================================
+   STATS
+   ============================================================ */
+
+let statsPeriod = 'current';
+
+function renderStats() {
+  const c = document.getElementById('statsContent');
+  const allAct = DB.activities;
+
+  let filtered;
+  if (statsPeriod === 'current') {
+    filtered = allAct;
+  } else if (statsPeriod === 'jb') {
+    filtered = allAct.filter(a => a.team === 'Joga Bonito');
+  } else if (statsPeriod === 'ijv') {
+    filtered = allAct.filter(a => a.team === 'Ijsselmeervogels');
+  } else if (statsPeriod === 'training') {
+    filtered = allAct.filter(a => a.type === 'training');
+  } else {
+    filtered = allAct;
+  }
+
+  const perf = filtered.filter(a => a.type === 'match' || (a.type === 'training' && a.hasPartijspel));
+  const withDrib = perf.filter(a => a.dribbleAttempts > 0);
+  const withShots = perf.filter(a => a.shots > 0);
+
+  let h = `<div class="tab-row">
+    <button class="tab-btn ${statsPeriod === 'current' ? 'active' : ''}" onclick="statsPeriod='current';renderStats()">Alles</button>
+    <button class="tab-btn ${statsPeriod === 'jb' ? 'active' : ''}" onclick="statsPeriod='jb';renderStats()">Joga Bonito</button>
+    <button class="tab-btn ${statsPeriod === 'ijv' ? 'active' : ''}" onclick="statsPeriod='ijv';renderStats()">IJV</button>
+    <button class="tab-btn ${statsPeriod === 'training' ? 'active' : ''}" onclick="statsPeriod='training';renderStats()">Training</button>
+  </div>`;
+
+  if (!filtered.length) {
+    h += `<div class="empty-state">
+      <div class="empty-icon">\u{1F4CA}</div>
+      <h3>Nog geen data</h3>
+      <p>Vul evaluaties in om je statistieken te zien.</p>
+    </div>`;
+    c.innerHTML = h;
+    return;
+  }
+
+  const totalGoals = perf.reduce((s, a) => s + a.goals, 0);
+  const totalAssists = perf.reduce((s, a) => s + a.assists, 0);
+  const avgDribRate = withDrib.length ? Math.round(avg(withDrib.map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess)))) : 0;
+  const avgShotAcc = withShots.length ? Math.round(avg(withShots.map(a => shotAccuracy(a.shots, a.shotsOnTarget)))) : 0;
+  const avgConv = withShots.length ? Math.round(avg(withShots.map(a => conversionRate(a.shots, a.goals)))) : 0;
+  const totalDribAttempts = perf.reduce((s, a) => s + a.dribbleAttempts, 0);
+  const totalDribSuccess = perf.reduce((s, a) => s + a.dribbleSuccess, 0);
+
+  h += `<div class="stat-grid">
+    <div class="stat-box"><div class="stat-value">${filtered.length}</div><div class="stat-label">Activiteiten</div></div>
+    <div class="stat-box"><div class="stat-value">${totalGoals}</div><div class="stat-label">Goals</div></div>
+    <div class="stat-box"><div class="stat-value">${totalAssists}</div><div class="stat-label">Assists</div></div>
+    <div class="stat-box"><div class="stat-value">${avgDribRate}%</div><div class="stat-label">Dribbel%</div></div>
+  </div>`;
+
+  h += `<div class="card">
+    <div class="card-title" style="margin-bottom:8px">Dribbels</div>
+    <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">
+      ${totalDribSuccess}/${totalDribAttempts} geslaagd (${dribbleRate(totalDribAttempts, totalDribSuccess)}%) &middot; Gem. ${avgDribRate}% per activiteit
+    </div>
+    ${withDrib.length >= 2 ? renderTrendChart(withDrib.map(a => ({ label: formatDate(a.date).split(' ')[1], value: dribbleRate(a.dribbleAttempts, a.dribbleSuccess) })).slice(-10), 'var(--primary)') : '<p class="text-xs text-muted">Minimaal 2 activiteiten nodig voor trend</p>'}
+  </div>`;
+
+  h += `<div class="card">
+    <div class="card-title" style="margin-bottom:8px">Schoten</div>
+    <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">
+      ${avgShotAcc}% op doel &middot; ${avgConv}% conversie
+    </div>
+    ${withShots.length >= 2 ? renderTrendChart(withShots.map(a => ({ label: formatDate(a.date).split(' ')[1], value: conversionRate(a.shots, a.goals) })).slice(-10), 'var(--blue)') : '<p class="text-xs text-muted">Minimaal 2 activiteiten nodig voor trend</p>'}
+  </div>`;
+
+  h += `<div class="card">
+    <div class="card-title" style="margin-bottom:8px">Goals & Assists per activiteit</div>
+    ${perf.length >= 2 ? renderBarChart(perf.map(a => ({
+      label: formatDate(a.date).split(' ')[1],
+      goals: a.goals,
+      assists: a.assists
+    })).slice(-10)) : '<p class="text-xs text-muted">Minimaal 2 activiteiten nodig</p>'}
+  </div>`;
+
+  const activeGoals = DB.goals.filter(g => g.active);
+  if (activeGoals.length) {
+    h += `<div class="section-title">Doelen</div>`;
+    activeGoals.forEach(g => {
+      const progress = calcGoalProgress(g);
+      h += `<div class="goal-card">
+        <div class="goal-header">
+          <span class="goal-title">${g.label}</span>
+          <span class="goal-badge ${progress >= 100 ? 'reached' : 'active'}">${progress >= 100 ? 'Bereikt!' : progress + '%'}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill${progress >= 100 ? ' green' : ''}" style="width:${Math.min(progress, 100)}%"></div></div>
+      </div>`;
+    });
+  }
+
+  h += `<button class="btn btn-outline btn-block btn-sm mt-16" onclick="openGoalModal()">Doel instellen</button>`;
+
+  c.innerHTML = h;
+}
+
+function renderTrendChart(data, color) {
+  if (!data.length) return '';
+  const w = 300, h = 100, pad = 25;
+  const max = Math.max(...data.map(d => d.value), 1);
+  const min = 0;
+  const xStep = data.length > 1 ? (w - pad * 2) / (data.length - 1) : 0;
+
+  let points = data.map((d, i) => {
+    const x = pad + i * xStep;
+    const y = pad + (1 - (d.value - min) / (max - min || 1)) * (h - pad * 2);
+    return `${x},${y}`;
+  }).join(' ');
+
+  let svg = `<div class="chart-container"><svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:${w}px">`;
+  svg += `<line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="var(--border)" stroke-width="1"/>`;
+  svg += `<polyline points="${points}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  data.forEach((d, i) => {
+    const x = pad + i * xStep;
+    const y = pad + (1 - (d.value - min) / (max - min || 1)) * (h - pad * 2);
+    svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="${color}"/>`;
+    svg += `<text x="${x}" y="${y - 8}" text-anchor="middle" font-size="8" font-weight="600" fill="var(--text)">${d.value}%</text>`;
+    svg += `<text x="${x}" y="${h - 8}" text-anchor="middle" font-size="7" fill="var(--text-muted)">${d.label}</text>`;
+  });
+  svg += `</svg></div>`;
+  return svg;
+}
+
+function renderBarChart(data) {
+  if (!data.length) return '';
+  const w = 300, h = 120, pad = 25;
+  const max = Math.max(...data.map(d => d.goals + d.assists), 1);
+  const barW = Math.max(8, Math.floor((w - pad * 2) / data.length) - 6);
+
+  let svg = `<div class="chart-container"><svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:${w}px">`;
+  svg += `<line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="var(--border)" stroke-width="1"/>`;
+
+  data.forEach((d, i) => {
+    const x = pad + i * ((w - pad * 2) / data.length) + 3;
+    const totalH = ((d.goals + d.assists) / max) * (h - pad * 2);
+    const goalH = (d.goals / max) * (h - pad * 2);
+    const assistH = (d.assists / max) * (h - pad * 2);
+    const baseY = h - pad;
+
+    if (d.assists > 0) {
+      svg += `<rect x="${x}" y="${baseY - totalH}" width="${barW}" height="${assistH}" rx="2" fill="var(--text-muted)" opacity="0.3"/>`;
+    }
+    if (d.goals > 0) {
+      svg += `<rect x="${x}" y="${baseY - goalH}" width="${barW}" height="${goalH}" rx="2" fill="var(--primary)" opacity="0.8"/>`;
+    }
+    if (d.goals + d.assists > 0) {
+      svg += `<text x="${x + barW / 2}" y="${baseY - totalH - 4}" text-anchor="middle" font-size="7" font-weight="600" fill="var(--text)">${d.goals + d.assists}</text>`;
+    }
+    svg += `<text x="${x + barW / 2}" y="${h - 8}" text-anchor="middle" font-size="7" fill="var(--text-muted)">${d.label}</text>`;
+  });
+
+  svg += `</svg></div>`;
+  svg += `<div style="display:flex;gap:12px;justify-content:center;font-size:0.65rem;color:var(--text-muted)">
+    <span><span style="display:inline-block;width:8px;height:8px;background:var(--primary);border-radius:2px;opacity:0.8;vertical-align:middle;margin-right:3px"></span>Goals</span>
+    <span><span style="display:inline-block;width:8px;height:8px;background:var(--text-muted);border-radius:2px;opacity:0.3;vertical-align:middle;margin-right:3px"></span>Assists</span>
+  </div>`;
+  return svg;
+}
+
+/* ============================================================
+   GOALS
+   ============================================================ */
+
+function openGoalModal() {
+  let h = `<div class="modal-title">Nieuw doel instellen</div>`;
+
+  h += `<div class="form-group">
+    <label class="form-label">Type doel</label>
+    <select class="form-select" id="goalType" onchange="updateGoalForm()">
+      <option value="percentage">Percentage (bijv. 80% dribbelsucces)</option>
+      <option value="streak">Streak (bijv. 5 wedstrijden op rij scoren)</option>
+      <option value="volume">Volume (bijv. 10 dribbelpogingen per wedstrijd)</option>
+    </select>
+  </div>`;
+
+  h += `<div id="goalFields"></div>`;
+
+  h += `<button class="btn btn-primary btn-block mt-16" onclick="saveGoal()">Doel opslaan</button>`;
+
+  openModal(h);
+  setTimeout(updateGoalForm, 50);
+}
+
+function updateGoalForm() {
+  const type = document.getElementById('goalType').value;
+  const f = document.getElementById('goalFields');
+  let h = '';
+
+  if (type === 'percentage') {
+    h += `<div class="form-group">
+      <label class="form-label">Metric</label>
+      <select class="form-select" id="goalMetric">
+        <option value="dribbleRate">Dribbelsucces %</option>
+        <option value="shotAccuracy">Schotnauwkeurigheid %</option>
+        <option value="conversionRate">Conversie %</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Doelpercentage</label>
+      <input class="form-input" type="number" id="goalTarget" inputmode="numeric" placeholder="bijv. 80" min="1" max="100">
+    </div>`;
+  } else if (type === 'streak') {
+    h += `<div class="form-group">
+      <label class="form-label">Wat moet er achtereenvolgens lukken?</label>
+      <select class="form-select" id="goalMetric">
+        <option value="goals">Scoren (minimaal 1 goal)</option>
+        <option value="dribbleAttempts">Dribbelpogingen (minimaal 1)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Aantal op rij</label>
+      <input class="form-input" type="number" id="goalTarget" inputmode="numeric" placeholder="bijv. 5" min="2">
+    </div>`;
+  } else {
+    h += `<div class="form-group">
+      <label class="form-label">Metric</label>
+      <select class="form-select" id="goalMetric">
+        <option value="dribbleAttempts">Dribbelpogingen per wedstrijd</option>
+        <option value="shots">Schoten per wedstrijd</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Doelaantal (gemiddeld per activiteit)</label>
+      <input class="form-input" type="number" id="goalTarget" inputmode="numeric" placeholder="bijv. 10" min="1">
+    </div>`;
+  }
+
+  h += `<div class="form-group">
+    <label class="form-label">Label (korte beschrijving)</label>
+    <input class="form-input" type="text" id="goalLabel" placeholder="bijv. 80% dribbelsucces">
+  </div>`;
+
+  f.innerHTML = h;
+}
+
+function saveGoal() {
+  const type = document.getElementById('goalType').value;
+  const metric = document.getElementById('goalMetric').value;
+  const target = parseInt(document.getElementById('goalTarget').value);
+  const label = document.getElementById('goalLabel').value.trim();
+
+  if (!target || !label) {
+    showToast('Vul alle velden in');
+    return;
+  }
+
+  DB.goals.push({
+    id: 'g' + DB.nextGoalId++,
+    type, metric, target, label,
+    active: true,
+    createdAt: new Date().toISOString()
+  });
+  saveData();
+  closeModal();
+  showToast('Doel opgeslagen!');
+  renderStats();
+}
+
+/* ============================================================
+   COACHING & ANALYSE
+   ============================================================ */
+
+function renderCoaching() {
+  const c = document.getElementById('coachingContent');
+  const activities = DB.activities;
+  const perf = getActivitiesWithPerformance();
+
+  let h = '';
+
+  if (activities.length < 2) {
+    h += `<div class="empty-state">
+      <div class="empty-icon">\u{1F4D6}</div>
+      <h3>Meer data nodig</h3>
+      <p>Vul minimaal 2 evaluaties in voor persoonlijke coaching en analyse.</p>
+      <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="navigateTo('pageEvaluatie')">Evaluatie invullen</button>
+    </div>`;
+    c.innerHTML = h;
+    return;
+  }
+
+  const perfInsights = generatePerformanceInsights(perf);
+  const prepInsights = generatePreparationInsights(activities);
+  const coachInsights = generateCoachingInsights(activities, perf);
+  const careerInsights = generateCareerInsights();
+
+  if (coachInsights.length) {
+    h += renderInsightSection('Focus & Coaching', coachInsights);
+  }
+  if (perfInsights.length) {
+    h += renderInsightSection('Prestatie-analyse', perfInsights);
+  }
+  if (prepInsights.length) {
+    h += renderInsightSection('Voorbereiding & patronen', prepInsights);
+  }
+  if (careerInsights.length) {
+    h += renderInsightSection('Carrière', careerInsights);
+  }
+
+  if (!h) {
+    h += `<div class="empty-state">
+      <div class="empty-icon">\u{1F914}</div>
+      <h3>Nog geen inzichten</h3>
+      <p>Vul meer evaluaties in met prestatie-data voor analyses.</p>
+    </div>`;
+  }
+
+  c.innerHTML = h;
+}
+
+function renderInsightSection(title, insights) {
+  let h = `<div class="insight-section">
+    <div class="insight-section-title">${title}</div>`;
+  insights.forEach(ins => {
+    h += `<div class="insight-card">
+      <div class="insight-header">
+        <span class="insight-tag ${ins.tag}">${ins.tagText}</span>
+        <span class="insight-title">${ins.title}</span>
+      </div>
+      <div class="insight-body">${ins.body}</div>
+    </div>`;
+  });
+  h += `</div>`;
+  return h;
+}
+
+function generatePerformanceInsights(perf) {
+  const ins = [];
+  if (perf.length < 2) return ins;
+
+  const withDrib = perf.filter(a => a.dribbleAttempts > 0);
+  if (withDrib.length >= 3) {
+    const allRate = dribbleRate(
+      withDrib.reduce((s, a) => s + a.dribbleAttempts, 0),
+      withDrib.reduce((s, a) => s + a.dribbleSuccess, 0)
+    );
+    const recent = withDrib.slice(-5);
+    const recentRate = dribbleRate(
+      recent.reduce((s, a) => s + a.dribbleAttempts, 0),
+      recent.reduce((s, a) => s + a.dribbleSuccess, 0)
+    );
+    const diff = recentRate - allRate;
+    ins.push({
+      tag: diff >= 0 ? 'positive' : 'warning',
+      tagText: diff >= 0 ? 'Stijgend' : 'Dalend',
+      title: `Dribbelsucces: ${recentRate}% recent`,
+      body: `Totaal gemiddeld: <span class="insight-stat">${allRate}%</span>. Laatste ${recent.length} activiteiten: <span class="insight-stat">${recentRate}%</span>. ${diff >= 0 ? `<strong>+${diff}%</strong> boven` : `<strong>${diff}%</strong> onder`} je gemiddelde.`
+    });
+  }
+
+  const withShots = perf.filter(a => a.shots > 0);
+  if (withShots.length >= 3) {
+    const allConv = conversionRate(
+      withShots.reduce((s, a) => s + a.shots, 0),
+      withShots.reduce((s, a) => s + a.goals, 0)
+    );
+    const recent = withShots.slice(-5);
+    const recentConv = conversionRate(
+      recent.reduce((s, a) => s + a.shots, 0),
+      recent.reduce((s, a) => s + a.goals, 0)
+    );
+    const diff = recentConv - allConv;
+    ins.push({
+      tag: diff >= 0 ? 'positive' : 'warning',
+      tagText: diff >= 0 ? 'Stijgend' : 'Dalend',
+      title: `Schotconversie: ${recentConv}% recent`,
+      body: `Totaal gemiddeld: <span class="insight-stat">${allConv}%</span>. Recent: <span class="insight-stat">${recentConv}%</span>. ${diff >= 0 ? 'Positieve trend.' : 'Let op: dalende trend.'}`
+    });
+  }
+
+  let goalStreak = 0;
+  for (let i = perf.length - 1; i >= 0; i--) {
+    if (perf[i].goals > 0) goalStreak++;
+    else break;
+  }
+  if (goalStreak >= 2) {
+    ins.push({
+      tag: 'positive', tagText: 'Reeks',
+      title: `${goalStreak} activiteiten op rij gescoord`,
+      body: `Je scoort al <span class="insight-stat">${goalStreak}</span> activiteiten achtereen. ${goalStreak >= 5 ? 'Indrukwekkende reeks!' : 'Blijf dit vasthouden.'}`
+    });
+  }
+
+  const positions = {};
+  perf.forEach(a => {
+    if (!positions[a.mainPosition]) positions[a.mainPosition] = [];
+    positions[a.mainPosition].push(a);
+  });
+  let bestPos = null, bestPosRate = 0;
+  Object.entries(positions).forEach(([pos, acts]) => {
+    if (acts.length >= 2) {
+      const rate = avg(acts.filter(a => a.dribbleAttempts > 0).map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess)));
+      if (rate > bestPosRate) { bestPosRate = Math.round(rate); bestPos = pos; }
+    }
+  });
+  if (bestPos && Object.keys(positions).length > 1) {
+    ins.push({
+      tag: 'neutral', tagText: 'Positie',
+      title: `Beste dribbels op ${positionLabel(bestPos)}`,
+      body: `Op ${positionLabel(bestPos)} haal je gemiddeld <span class="insight-stat">${bestPosRate}%</span> dribbelsucces. ${bestPos === 'flank-links' ? 'Dat is je eigen positie — logisch.' : 'Wellicht iets om vaker te proberen.'}`
+    });
+  }
+
+  return ins;
+}
+
+function generatePreparationInsights(activities) {
+  const ins = [];
+  const perf = activities.filter(a => (a.type === 'match' || a.hasPartijspel) && a.dribbleAttempts > 0);
+  if (perf.length < 4) return ins;
+
+  const tired = perf.filter(a => a.preparation.tiredBody);
+  const fresh = perf.filter(a => !a.preparation.tiredBody);
+  if (tired.length >= 2 && fresh.length >= 2) {
+    const tiredRate = Math.round(avg(tired.map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess))));
+    const freshRate = Math.round(avg(fresh.map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess))));
+    const diff = freshRate - tiredRate;
+    if (Math.abs(diff) >= 3) {
+      ins.push({
+        tag: diff > 10 ? 'warning' : 'neutral', tagText: 'Patroon',
+        title: diff > 0 ? 'Vermoeidheid kost dribbels' : 'Vermoeidheid geen groot probleem',
+        body: `Fris: <span class="insight-stat">${freshRate}%</span> dribbelsucces. Vermoeid: <span class="insight-stat">${tiredRate}%</span>. Verschil: <strong>${Math.abs(diff)}%</strong>. ${diff > 10 ? 'Overweeg betere rust voor wedstrijden.' : ''}`
+      });
+    }
+  }
+
+  const lowConf = perf.filter(a => a.preparation.lowConfidence);
+  const hiConf = perf.filter(a => !a.preparation.lowConfidence);
+  if (lowConf.length >= 2 && hiConf.length >= 2) {
+    const lowAttempts = Math.round(avg(lowConf.map(a => a.dribbleAttempts)));
+    const hiAttempts = Math.round(avg(hiConf.map(a => a.dribbleAttempts)));
+    const diff = hiAttempts - lowAttempts;
+    if (diff > 0) {
+      ins.push({
+        tag: 'neutral', tagText: 'Zelfvertrouwen',
+        title: 'Minder zelfvertrouwen = minder dribbelpogingen',
+        body: `Met zelfvertrouwen: <span class="insight-stat">${hiAttempts}</span> dribbelpogingen gemiddeld. Zonder: <span class="insight-stat">${lowAttempts}</span>. Je probeert <strong>${diff} minder</strong> dribbels als je je onzeker voelt.`
+      });
+    }
+  }
+
+  const withWater = perf.filter(a => a.preparation.waterLiters > 0);
+  if (withWater.length >= 4) {
+    const sorted = [...withWater].sort((a, b) => a.preparation.waterLiters - b.preparation.waterLiters);
+    const low = sorted.slice(0, Math.ceil(sorted.length / 2));
+    const high = sorted.slice(Math.ceil(sorted.length / 2));
+    const lowRate = Math.round(avg(low.map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess))));
+    const highRate = Math.round(avg(high.map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess))));
+    if (Math.abs(highRate - lowRate) >= 5) {
+      ins.push({
+        tag: highRate > lowRate ? 'positive' : 'neutral', tagText: 'Hydratatie',
+        title: highRate > lowRate ? 'Meer water = beter presteren' : 'Hydratatie maakt weinig verschil',
+        body: `Meer water (>${(avg(high.map(a => a.preparation.waterLiters))).toFixed(1)}L): <span class="insight-stat">${highRate}%</span> dribbel. Minder water: <span class="insight-stat">${lowRate}%</span>.`
+      });
+    }
+  }
+
+  const feelings = {};
+  perf.forEach(a => {
+    if (!feelings[a.feeling]) feelings[a.feeling] = [];
+    feelings[a.feeling].push(a);
+  });
+  const feelingPerf = Object.entries(feelings).map(([f, acts]) => ({
+    feeling: f, rate: Math.round(avg(acts.filter(a => a.dribbleAttempts > 0).map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess)))), count: acts.length
+  })).filter(f => f.count >= 2).sort((a, b) => b.rate - a.rate);
+  if (feelingPerf.length >= 2) {
+    const best = feelingPerf[0];
+    ins.push({
+      tag: 'neutral', tagText: 'Gevoel',
+      title: `Beste dribbels bij "${feelingLabel(best.feeling)}"`,
+      body: `Bij "${feelingLabel(best.feeling)}": <span class="insight-stat">${best.rate}%</span> dribbelsucces (${best.count}x). ${best.feeling === 'tevreden' || best.feeling === 'zeer tevreden' ? 'Positief gevoel helpt.' : 'Interessant — zelfs met dat gevoel presteer je goed.'}`
+    });
+  }
+
+  return ins;
+}
+
+function generateCoachingInsights(activities, perf) {
+  const ins = [];
+  if (!activities.length) return ins;
+
+  const last = activities[activities.length - 1];
+  const withDrib = perf.filter(a => a.dribbleAttempts > 0);
+
+  if (withDrib.length >= 2) {
+    const lastRate = dribbleRate(last.dribbleAttempts, last.dribbleSuccess);
+    const target = Math.min(100, lastRate + 2);
+    ins.push({
+      tag: 'positive', tagText: 'Kaizen',
+      title: `Doel volgende keer: ${target}% dribbelsucces`,
+      body: `Vorige keer: <span class="insight-stat">${lastRate}%</span>. Kaizen — verbeter met 2%. Doel: <span class="insight-stat">${target}%</span>. Eén verbetering tegelijk, dat is de kracht van kleine stappen.`
+    });
+  }
+
+  if (perf.length >= 3) {
+    const recent3 = perf.slice(-3);
+    const trend = recent3.map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess));
+    const improving = trend[2] > trend[0];
+    ins.push({
+      tag: 'neutral', tagText: 'PDCA',
+      title: improving ? 'Check: positieve trend' : 'Check: tijd voor actie',
+      body: improving
+        ? `Laatste 3 sessies: ${trend.join('% → ')}%. De trend is positief. <strong>Act:</strong> blijf op deze lijn, pas niet te veel tegelijk aan.`
+        : `Laatste 3 sessies: ${trend.join('% → ')}%. De trend is vlak/dalend. <strong>Act:</strong> analyseer wat er anders is. Focus op één specifiek aspect.`
+    });
+  }
+
+  if (last.feeling && withDrib.length >= 3) {
+    const lastRate = dribbleRate(last.dribbleAttempts, last.dribbleSuccess);
+    const avgRate = Math.round(avg(withDrib.map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess))));
+    const positive = last.feeling === 'tevreden' || last.feeling === 'zeer tevreden';
+    if (positive && lastRate < avgRate - 8) {
+      ins.push({
+        tag: 'neutral', tagText: 'Hansei',
+        title: 'Eerlijke reflectie: gevoel vs. cijfers',
+        body: `Je gaf jezelf "${feelingLabel(last.feeling)}", maar je dribbelsucces was <span class="insight-stat">${lastRate}%</span> — <strong>${avgRate - lastRate}%</strong> onder je gemiddelde (${avgRate}%). Hansei: wat ging er écht goed, en wat kan scherper?`
+      });
+    }
+    if (!positive && lastRate > avgRate + 5) {
+      ins.push({
+        tag: 'positive', tagText: 'Hansei',
+        title: 'Beter dan je denkt',
+        body: `Je gaf jezelf "${feelingLabel(last.feeling)}", maar je dribbelsucces was <span class="insight-stat">${lastRate}%</span> — <strong>${lastRate - avgRate}%</strong> boven je gemiddelde. Vertrouw je data: je presteerde goed.`
+      });
+    }
+  }
+
+  const streak = calcActivityStreak();
+  if (streak >= 2) {
+    ins.push({
+      tag: 'positive', tagText: 'Gambatte',
+      title: `${streak} weken op rij actief`,
+      body: `Consistentie is de basis van groei. Je bent al <span class="insight-stat">${streak} weken</span> op rij bezig. Gambatte — blijf dit volhouden.`
+    });
+  }
+
+  if (activities.length >= 3) {
+    const focusActivities = activities.filter(a => a.focusPoints && a.focusPoints.length > 0);
+    if (focusActivities.length >= 2) {
+      const allFocus = focusActivities.flatMap(a => a.focusPoints);
+      const total = allFocus.length;
+      const gehaald = allFocus.filter(fp => fp.result === 'gehaald').length;
+      const rate = Math.round((gehaald / total) * 100);
+      ins.push({
+        tag: rate >= 60 ? 'positive' : 'neutral', tagText: 'Focus',
+        title: `${rate}% van je focuspunten gehaald`,
+        body: `${gehaald} van ${total} focuspunten volledig gehaald. ${rate >= 60 ? 'Sterk — je focusaanpak werkt.' : 'Stel scherpere, kleinere focuspunten in.'}`
+      });
+    }
+  }
+
+  return ins;
+}
+
+function generateCareerInsights() {
+  const ins = [];
+  const perf = getActivitiesWithPerformance();
+  if (!perf.length) return ins;
+
+  const thisSeasonGoals = perf.reduce((s, a) => s + a.goals, 0);
+  const thisSeasonAssists = perf.reduce((s, a) => s + a.assists, 0);
+  const thisSeasonPlayed = perf.length;
+
+  const histGoals = DB.historicalSeasons.reduce((s, hs) => s + (hs.comp.goals || 0) + (hs.friendly.goals || 0) + (hs.cup.goals || 0), 0);
+  const histAssists = DB.historicalSeasons.reduce((s, hs) => s + (hs.comp.assists || 0) + (hs.friendly.assists || 0) + (hs.cup.assists || 0), 0);
+  const histPlayed = DB.historicalSeasons.reduce((s, hs) => s + (hs.comp.played || 0) + (hs.friendly.played || 0) + (hs.cup.played || 0), 0);
+
+  ins.push({
+    tag: 'neutral', tagText: 'Carrière',
+    title: 'All-time statistieken',
+    body: `Totaal: <span class="insight-stat">${histGoals + thisSeasonGoals}</span> goals, <span class="insight-stat">${histAssists + thisSeasonAssists}</span> assists in <span class="insight-stat">${histPlayed + thisSeasonPlayed}</span> duels. Dit seizoen: ${thisSeasonGoals}G, ${thisSeasonAssists}A in ${thisSeasonPlayed} activiteiten.`
+  });
+
+  if (thisSeasonPlayed >= 3 && histPlayed > 0) {
+    const histGPG = histGoals / histPlayed;
+    const thisGPG = thisSeasonGoals / thisSeasonPlayed;
+    const diff = thisGPG - histGPG;
+    ins.push({
+      tag: diff >= 0 ? 'positive' : 'warning',
+      tagText: diff >= 0 ? 'Groei' : 'Aandacht',
+      title: `${thisGPG.toFixed(2)} goals/wedstrijd dit seizoen`,
+      body: `Historisch gemiddelde: <span class="insight-stat">${histGPG.toFixed(2)}</span> goals/wedstrijd. Dit seizoen: <span class="insight-stat">${thisGPG.toFixed(2)}</span>. ${diff >= 0 ? 'Je scoort beter dan je historisch gemiddelde.' : 'Onder je historisch gemiddelde — focus op afronding.'}`
+    });
+  }
+
+  return ins;
+}
+
+/* ============================================================
+   PROFIEL
+   ============================================================ */
+
+function renderProfiel() {
+  const c = document.getElementById('profielContent');
+  const p = DB.profile;
+  const age = getAge(p.birthDate);
+
+  let h = '';
+
+  h += `<div class="card" style="text-align:center;padding:24px 16px">
+    <div style="width:72px;height:72px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;margin:0 auto 12px">IL</div>
+    <h2 style="font-size:1.15rem;margin-bottom:4px">${p.name}</h2>
+    <p style="font-size:0.82rem;color:var(--text-muted)">${age} jaar &middot; ${p.foot} &middot; ${p.position}</p>
+    <div style="display:flex;justify-content:center;gap:16px;margin-top:12px;flex-wrap:wrap">
+      ${Object.entries(p.numbers).map(([team, num]) =>
+        `<span style="font-size:0.75rem;display:flex;align-items:center;gap:4px"><span class="team-dot ${teamColorClass(team)}"></span>${team} #${num}</span>`
+      ).join('')}
+    </div>
+  </div>`;
+
+  h += `<div class="section-title">Dit seizoen (${DB.settings.currentSeason})</div>`;
+  const perf = getActivitiesWithPerformance();
+  const matches = DB.activities.filter(a => a.type === 'match');
+  const trainings = DB.activities.filter(a => a.type === 'training');
+  const totalG = perf.reduce((s, a) => s + a.goals, 0);
+  const totalA = perf.reduce((s, a) => s + a.assists, 0);
+  const avgDR = perf.filter(a => a.dribbleAttempts > 0).length
+    ? Math.round(avg(perf.filter(a => a.dribbleAttempts > 0).map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess))))
+    : 0;
+
+  h += `<div class="stat-grid">
+    <div class="stat-box"><div class="stat-value">${matches.length}</div><div class="stat-label">Wedstrijden</div></div>
+    <div class="stat-box"><div class="stat-value">${trainings.length}</div><div class="stat-label">Trainingen</div></div>
+    <div class="stat-box"><div class="stat-value">${totalG}</div><div class="stat-label">Goals</div></div>
+    <div class="stat-box"><div class="stat-value">${totalA}</div><div class="stat-label">Assists</div></div>
+  </div>`;
+
+  if (perf.length) {
+    h += `<div class="stat-grid stat-grid-3">
+      <div class="stat-box"><div class="stat-value">${avgDR}%</div><div class="stat-label">Dribbel%</div></div>
+      <div class="stat-box"><div class="stat-value">${perf.reduce((s, a) => s + a.dribbleAttempts, 0)}</div><div class="stat-label">Pogingen</div></div>
+      <div class="stat-box"><div class="stat-value">${perf.reduce((s, a) => s + a.dribbleSuccess, 0)}</div><div class="stat-label">Geslaagd</div></div>
+    </div>`;
+  }
+
+  h += `<div class="section-title">Carrière</div>`;
+  h += `<div class="card">`;
+
+  let allTimeG = 0, allTimeA = 0, allTimeP = 0;
+  DB.historicalSeasons.forEach(s => {
+    const played = (s.comp.played || 0) + (s.friendly.played || 0) + (s.cup.played || 0);
+    const goals = (s.comp.goals || 0) + (s.friendly.goals || 0) + (s.cup.goals || 0);
+    const assists = (s.comp.assists || 0) + (s.friendly.assists || 0) + (s.cup.assists || 0);
+    allTimeG += goals;
+    allTimeA += assists;
+    allTimeP += played;
+
+    if (!played && !goals) {
+      h += `<div class="career-row">
+        <div><span class="team-dot ${teamColorClass(s.team)}"></span> <span class="career-team">${s.season} ${s.team}</span></div>
+        <div class="career-stats">${s.position} (${s.bond})</div>
+      </div>`;
+    } else {
+      h += `<div class="career-row">
+        <div><span class="team-dot ${teamColorClass(s.team)}"></span> <span class="career-team">${s.season} ${s.team}</span></div>
+        <div class="career-stats">${s.position} &middot; ${played} wed &middot; ${goals}G ${assists}A</div>
+      </div>`;
+    }
+  });
+
+  allTimeG += totalG;
+  allTimeA += totalA;
+  allTimeP += perf.length;
+
+  h += `<div class="divider"></div>
+    <div class="career-row" style="border-bottom:none">
+      <div><strong>All-time totaal</strong></div>
+      <div class="career-stats" style="font-weight:700;color:var(--text)">${allTimeP} wed &middot; ${allTimeG}G ${allTimeA}A</div>
+    </div>`;
+  h += `</div>`;
+
+  h += `<button class="btn btn-outline btn-block btn-sm mt-16" onclick="exportData()">Data exporteren (JSON)</button>`;
+  h += `<button class="btn btn-outline btn-block btn-sm mt-8" style="color:var(--negative);border-color:var(--negative)" onclick="confirmReset()">Alle data wissen</button>`;
+
+  c.innerHTML = h;
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(DB, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `futsal-coach-backup-${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Backup gedownload');
+}
+
+function confirmReset() {
+  openModal(`
+    <div class="modal-title">Alle data wissen?</div>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px">Dit verwijdert alle evaluaties, doelen en instellingen. Exporteer eerst een backup als je je data wilt bewaren.</p>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-danger" style="flex:1" onclick="resetAllData()">Wissen</button>
+    </div>
+  `);
+}
+
+function resetAllData() {
+  localStorage.removeItem(STORAGE_KEY);
+  DB = defaultData();
+  closeModal();
+  showToast('Alle data gewist');
+  navigateTo('pageDashboard');
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+
+renderDashboard();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+
+</script>
+</body>
+</html>
