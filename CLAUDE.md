@@ -13,7 +13,7 @@ Single-file HTML app (`index.html`, ~2500 regels). Alle CSS + JS inline, geen bu
 - HTML body: 6 pagina's, bottomnav, modal overlay, toast
 - JS data layer: DB, load/save, helpers, Monday generator, Kaizen quotes
 - JS navigatie: tab switching, modal, toast
-- JS pagina's: renderDashboard, renderEvaluatie, renderHistoriek, renderStats, renderCoaching, renderProfiel
+- JS pagina's: renderDashboard, renderEvaluatie, renderHistorie, renderStats, renderCoaching, renderProfiel
 - JS coaching engine: generatePerformanceInsights, generatePreparationInsights, generateCoachingInsights, generateCareerInsights
 - JS init
 
@@ -36,7 +36,7 @@ Header: zwart (#111111), witte tekst. Geen gradient.
 
 ## Pagina's (6 tabs)
 
-Dashboard | Evaluatie | Historiek | Stats | Coaching | Profiel
+Dashboard | Evaluatie | Historie | Stats | Coaching | Profiel
 
 ## Data model
 

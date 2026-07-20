@@ -534,7 +534,7 @@ h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
 
 <div class="page active" id="pageDashboard"><div id="dashboardContent"></div></div>
 <div class="page" id="pageEvaluatie"><div id="evaluatieContent"></div></div>
-<div class="page" id="pageHistoriek"><div id="historiekContent"></div></div>
+<div class="page" id="pageHistorie"><div id="historieContent"></div></div>
 <div class="page" id="pageStats"><div id="statsContent"></div></div>
 <div class="page" id="pageCoaching"><div id="coachingContent"></div></div>
 <div class="page" id="pageProfiel"><div id="profielContent"></div></div>
@@ -548,9 +548,9 @@ h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
     <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
     <span>Evaluatie</span>
   </button>
-  <button data-page="pageHistoriek">
+  <button data-page="pageHistorie">
     <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-    <span>Historiek</span>
+    <span>Historie</span>
   </button>
   <button data-page="pageStats">
     <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -581,20 +581,20 @@ h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
 const STORAGE_KEY = 'futsalCoach_v1';
 
 const HISTORICAL_SEASONS = [
-  { season: '2025/26', team: 'Ijsselmeervogels', bond: 'KNVB', position: '7e/12',
+  { season: '2025/26', team: 'Ijsselmeervogels', bond: 'KNVB',
     comp: { played: 18, goals: 19, assists: 11 },
     friendly: { played: 3, goals: 1, assists: 2 },
     cup: { played: 0, goals: 0, assists: 0 } },
-  { season: '2025/26', team: 'Joga Bonito', bond: 'SRZA', position: '3e',
-    comp: { played: 0, goals: 0, assists: 0 },
+  { season: '2025/26', team: 'Joga Bonito', bond: 'SRZA',
+    comp: { played: 16, goals: 34, assists: 18 },
     friendly: { played: 0, goals: 0, assists: 0 },
     cup: { played: 0, goals: 0, assists: 0 } },
-  { season: '2024/25', team: 'ZVV Adelaars', bond: 'KNVB', position: '5e/12',
+  { season: '2024/25', team: 'ZVV Adelaars', bond: 'KNVB',
     comp: { played: 20, goals: 20, assists: 7 },
     friendly: { played: 0, goals: 0, assists: 0 },
     cup: { played: 1, goals: 0, assists: 0 } },
-  { season: '2024/25', team: 'Joga Bonito', bond: 'SRZA', position: '2e',
-    comp: { played: 0, goals: 0, assists: 0 },
+  { season: '2024/25', team: 'Joga Bonito', bond: 'SRZA',
+    comp: { played: 17, goals: 24, assists: 14 },
     friendly: { played: 0, goals: 0, assists: 0 },
     cup: { played: 0, goals: 0, assists: 0 } }
 ];
@@ -606,7 +606,7 @@ function defaultData() {
       birthDate: '1991-07-15',
       foot: 'Rechts',
       position: 'Flank (links)',
-      numbers: { 'Joga Bonito': 7, 'ZVV Adelaars': 7, 'Ijsselmeervogels': 17 }
+      numbers: { 'Joga Bonito': 7, 'Ijsselmeervogels': 17 }
     },
     activities: [],
     historicalSeasons: JSON.parse(JSON.stringify(HISTORICAL_SEASONS)),
@@ -777,7 +777,7 @@ function renderPage(id) {
   switch (id) {
     case 'pageDashboard': renderDashboard(); break;
     case 'pageEvaluatie': renderEvaluatie(); break;
-    case 'pageHistoriek': renderHistoriek(); break;
+    case 'pageHistorie': renderHistorie(); break;
     case 'pageStats': renderStats(); break;
     case 'pageCoaching': renderCoaching(); break;
     case 'pageProfiel': renderProfiel(); break;
@@ -841,27 +841,37 @@ function renderDashboard() {
     const d = new Date(a.date);
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   });
-  const perfActivities = getActivitiesWithPerformance();
-  const avgDrib = perfActivities.length ? Math.round(avg(perfActivities.filter(a => a.dribbleAttempts > 0).map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess)))) : 0;
-  const totalGoals = activities.reduce((s, a) => s + (a.goals || 0), 0);
-  const streak = calcActivityStreak();
+  const monthPerf = thisMonth.filter(a => a.dribbleAttempts > 0 || a.goals > 0);
+  const monthDribActs = thisMonth.filter(a => a.dribbleAttempts > 0);
+  const avgDribPerAct = monthDribActs.length ? (monthDribActs.reduce((s, a) => s + (a.dribbleSuccess || 0), 0) / monthDribActs.length).toFixed(1) : '0';
+  const monthDribRate = monthDribActs.length ? Math.round(avg(monthDribActs.map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess)))) : 0;
+  const monthGoals = thisMonth.reduce((s, a) => s + (a.goals || 0), 0);
+  const monthAssists = thisMonth.reduce((s, a) => s + (a.assists || 0), 0);
 
-  h += `<div class="stat-grid stat-grid-2" style="margin-top:0">
+  const monthNames = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+  h += `<div class="section-title" style="margin-top:4px">Overzicht ${monthNames[now.getMonth()]}</div>`;
+  h += `<div class="stat-grid" style="margin-top:0">
     <div class="stat-box">
       <div class="stat-value">${thisMonth.length}</div>
-      <div class="stat-label">Deze maand</div>
+      <div class="stat-label">Activiteiten</div>
     </div>
     <div class="stat-box">
-      <div class="stat-value">${streak}</div>
-      <div class="stat-label">Weken streak</div>
+      <div class="stat-value">${avgDribPerAct}</div>
+      <div class="stat-label">Dribbels / act.</div>
     </div>
     <div class="stat-box">
-      <div class="stat-value">${avgDrib}%</div>
-      <div class="stat-label">Gem. dribbel%</div>
+      <div class="stat-value">${monthDribRate}%</div>
+      <div class="stat-label">Dribbel ratio</div>
     </div>
+  </div>`;
+  h += `<div class="stat-grid stat-grid-2" style="margin-top:0">
     <div class="stat-box">
-      <div class="stat-value">${totalGoals}</div>
+      <div class="stat-value">${monthGoals}</div>
       <div class="stat-label">Doelpunten</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">${monthAssists}</div>
+      <div class="stat-label">Assists</div>
     </div>
   </div>`;
 
@@ -1000,6 +1010,7 @@ function initFormState(type) {
     dribbleSuccess: '',
     shots: '',
     shotsOnTarget: '',
+    bigChances: '',
     goals: '',
     assists: '',
     feeling: 'neutraal',
@@ -1148,6 +1159,11 @@ function renderEvaluatie() {
       </div>
     </div>`;
 
+    h += `<div class="form-group">
+      <label class="form-label">Grote kansen</label>
+      <input class="form-input" type="number" inputmode="numeric" min="0" value="${fs.bigChances}" onchange="formState.bigChances=this.value" placeholder="0">
+    </div>`;
+
     h += `<div class="form-row">
       <div class="form-group">
         <label class="form-label">Doelpunten</label>
@@ -1197,20 +1213,20 @@ function renderEvaluatie() {
   });
   h += `</div>`;
 
-  h += `<div class="form-row">
-    <div class="form-group">
-      <label class="form-label">Gewicht vanochtend (kg)</label>
-      <input class="form-input" type="number" inputmode="decimal" step="0.1" value="${fs.preparation.weight}" onchange="formState.preparation.weight=this.value" placeholder="bijv. 78.5">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Water gedronken (L)</label>
-      <input class="form-input" type="number" inputmode="decimal" step="0.1" value="${fs.preparation.waterLiters}" onchange="formState.preparation.waterLiters=this.value" placeholder="bijv. 2.0">
-    </div>
-  </div>`;
-
   h += `<div class="form-group">
     <label class="form-label">Anders, namelijk</label>
     <input class="form-input" type="text" value="${fs.preparation.other}" onchange="formState.preparation.other=this.value" placeholder="Optioneel">
+  </div>`;
+
+  h += `<div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Gewicht vanochtend (kg)</label>
+      <input class="form-input" type="number" inputmode="decimal" step="0.1" value="${fs.preparation.weight}" onchange="formState.preparation.weight=this.value" placeholder="bijv. 74.0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Water gedronken (L)</label>
+      <input class="form-input" type="number" inputmode="decimal" step="0.1" value="${fs.preparation.waterLiters}" onchange="formState.preparation.waterLiters=this.value" placeholder="bijv. 1.5">
+    </div>
   </div>`;
 
   h += `<div class="section-title">Positie</div>`;
@@ -1229,10 +1245,10 @@ function renderEvaluatie() {
 
   h += `<div class="section-title">Focus</div>`;
   h += `<div class="form-group">
-    <label class="form-label">Focuspunten (optioneel, max 3)</label>
+    <label class="form-label">Focuspunten (optioneel, max 2)</label>
     <p class="form-hint" style="margin-bottom:8px">Waar wilde je op letten? Evalueer achteraf hoe het ging.</p>`;
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 2; i++) {
     const fp = fs.focusPoints[i] || { text: '', result: '' };
     h += `<div class="focus-item">
       <input class="form-input" type="text" value="${fp.text}" placeholder="Focus ${i + 1}" style="flex:1;padding:8px 10px;font-size:0.8rem" onchange="updateFocusPoint(${i},'text',this.value)">
@@ -1281,6 +1297,7 @@ function saveActivity() {
     dribbleSuccess: parseInt(fs.dribbleSuccess) || 0,
     shots: parseInt(fs.shots) || 0,
     shotsOnTarget: parseInt(fs.shotsOnTarget) || 0,
+    bigChances: parseInt(fs.bigChances) || 0,
     goals: parseInt(fs.goals) || 0,
     assists: parseInt(fs.assists) || 0,
     feeling: fs.feeling,
@@ -1305,33 +1322,33 @@ function saveActivity() {
   saveData();
   formState = null;
   showToast('Evaluatie opgeslagen!');
-  navigateTo('pageHistoriek');
+  navigateTo('pageHistorie');
 }
 
 /* ============================================================
-   HISTORIEK
+   HISTORIE
    ============================================================ */
 
-let historiekFilter = { type: 'all', team: 'all' };
+let historieFilter = { type: 'all', team: 'all' };
 
-function renderHistoriek() {
-  const c = document.getElementById('historiekContent');
+function renderHistorie() {
+  const c = document.getElementById('historieContent');
   let filtered = [...DB.activities].reverse();
 
-  if (historiekFilter.type !== 'all') filtered = filtered.filter(a => a.type === historiekFilter.type);
-  if (historiekFilter.team !== 'all') filtered = filtered.filter(a => a.team === historiekFilter.team);
+  if (historieFilter.type !== 'all') filtered = filtered.filter(a => a.type === historieFilter.type);
+  if (historieFilter.team !== 'all') filtered = filtered.filter(a => a.team === historieFilter.team);
 
   let h = `<div class="tab-row">
-    <button class="tab-btn ${historiekFilter.type === 'all' ? 'active' : ''}" onclick="historiekFilter.type='all';renderHistoriek()">Alles</button>
-    <button class="tab-btn ${historiekFilter.type === 'training' ? 'active' : ''}" onclick="historiekFilter.type='training';renderHistoriek()">Training</button>
-    <button class="tab-btn ${historiekFilter.type === 'match' ? 'active' : ''}" onclick="historiekFilter.type='match';renderHistoriek()">Wedstrijd</button>
+    <button class="tab-btn ${historieFilter.type === 'all' ? 'active' : ''}" onclick="historieFilter.type='all';renderHistorie()">Alles</button>
+    <button class="tab-btn ${historieFilter.type === 'training' ? 'active' : ''}" onclick="historieFilter.type='training';renderHistorie()">Training</button>
+    <button class="tab-btn ${historieFilter.type === 'match' ? 'active' : ''}" onclick="historieFilter.type='match';renderHistorie()">Wedstrijd</button>
   </div>`;
 
-  if (historiekFilter.type === 'match' || historiekFilter.type === 'all') {
+  if (historieFilter.type === 'match' || historieFilter.type === 'all') {
     h += `<div class="tab-row">
-      <button class="tab-btn ${historiekFilter.team === 'all' ? 'active' : ''}" onclick="historiekFilter.team='all';renderHistoriek()">Alle teams</button>
-      <button class="tab-btn ${historiekFilter.team === 'Joga Bonito' ? 'active' : ''}" onclick="historiekFilter.team='Joga Bonito';renderHistoriek()"><span class="team-dot blue"></span>Joga Bonito</button>
-      <button class="tab-btn ${historiekFilter.team === 'Ijsselmeervogels' ? 'active' : ''}" onclick="historiekFilter.team='Ijsselmeervogels';renderHistoriek()"><span class="team-dot red"></span>IJV</button>
+      <button class="tab-btn ${historieFilter.team === 'all' ? 'active' : ''}" onclick="historieFilter.team='all';renderHistorie()">Alle teams</button>
+      <button class="tab-btn ${historieFilter.team === 'Joga Bonito' ? 'active' : ''}" onclick="historieFilter.team='Joga Bonito';renderHistorie()"><span class="team-dot blue"></span>Joga Bonito</button>
+      <button class="tab-btn ${historieFilter.team === 'Ijsselmeervogels' ? 'active' : ''}" onclick="historieFilter.team='Ijsselmeervogels';renderHistorie()"><span class="team-dot red"></span>IJV</button>
     </div>`;
   }
 
@@ -1401,7 +1418,7 @@ function showActivityDetail(id) {
       <div class="stat-box"><div class="stat-value">${a.assists}</div><div class="stat-label">Assists</div></div>
     </div>`;
     h += `<div style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin-bottom:8px">
-      ${a.dribbleSuccess}/${a.dribbleAttempts} dribbels &middot; ${a.shotsOnTarget}/${a.shots} schoten op doel &middot; ${cr}% conversie
+      ${a.dribbleSuccess}/${a.dribbleAttempts} dribbels &middot; ${a.shotsOnTarget}/${a.shots} schoten op doel${a.bigChances ? ` &middot; ${a.bigChances} grote kansen` : ''} &middot; ${cr}% conversie
     </div>`;
   }
 
@@ -1459,9 +1476,9 @@ function deleteActivity(id) {
     DB.activities.push(removed);
     DB.activities.sort((a, b) => a.date.localeCompare(b.date));
     saveData();
-    renderHistoriek();
+    renderHistorie();
   });
-  renderHistoriek();
+  renderHistorie();
 }
 
 /* ============================================================
@@ -2063,6 +2080,31 @@ function generateCareerInsights() {
    PROFIEL
    ============================================================ */
 
+function handlePhotoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 200;
+      canvas.height = 200;
+      const ctx = canvas.getContext('2d');
+      const size = Math.min(img.width, img.height);
+      const sx = (img.width - size) / 2;
+      const sy = (img.height - size) / 2;
+      ctx.drawImage(img, sx, sy, size, size, 0, 0, 200, 200);
+      DB.profile.photo = canvas.toDataURL('image/jpeg', 0.8);
+      saveData();
+      renderProfiel();
+      showToast('Foto opgeslagen');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 function renderProfiel() {
   const c = document.getElementById('profielContent');
   const p = DB.profile;
@@ -2070,8 +2112,15 @@ function renderProfiel() {
 
   let h = '';
 
+  const photoSrc = p.photo || '';
   h += `<div class="card" style="text-align:center;padding:24px 16px">
-    <div style="width:72px;height:72px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;margin:0 auto 12px">IL</div>
+    <div style="position:relative;width:80px;height:80px;margin:0 auto 12px;cursor:pointer" onclick="document.getElementById('photoUpload').click()">
+      ${photoSrc
+        ? `<img src="${photoSrc}" style="width:80px;height:80px;border-radius:50%;object-fit:cover">`
+        : `<div style="width:80px;height:80px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700">IL</div>`}
+      <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.65rem;border:2px solid #fff">+</div>
+    </div>
+    <input type="file" id="photoUpload" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
     <h2 style="font-size:1.15rem;margin-bottom:4px">${p.name}</h2>
     <p style="font-size:0.82rem;color:var(--text-muted)">${age} jaar &middot; ${p.foot} &middot; ${p.position}</p>
     <div style="display:flex;justify-content:center;gap:16px;margin-top:12px;flex-wrap:wrap">
@@ -2091,11 +2140,23 @@ function renderProfiel() {
     ? Math.round(avg(perf.filter(a => a.dribbleAttempts > 0).map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess))))
     : 0;
 
+  const gaRatio = totalA > 0 ? (totalG / totalA).toFixed(2) : totalG > 0 ? totalG.toFixed(2) : '0';
+  const goalsPerMatch = matches.length > 0 ? (totalG / matches.length).toFixed(2) : '0';
+  const totalShots = perf.reduce((s, a) => s + (a.shots || 0), 0);
+  const totalShotsOnTarget = perf.reduce((s, a) => s + (a.shotsOnTarget || 0), 0);
+  const convRate = totalShots > 0 ? Math.round((totalG / totalShots) * 100) : 0;
+
   h += `<div class="stat-grid">
     <div class="stat-box"><div class="stat-value">${matches.length}</div><div class="stat-label">Wedstrijden</div></div>
     <div class="stat-box"><div class="stat-value">${trainings.length}</div><div class="stat-label">Trainingen</div></div>
     <div class="stat-box"><div class="stat-value">${totalG}</div><div class="stat-label">Goals</div></div>
     <div class="stat-box"><div class="stat-value">${totalA}</div><div class="stat-label">Assists</div></div>
+  </div>`;
+
+  h += `<div class="stat-grid">
+    <div class="stat-box"><div class="stat-value">${gaRatio}</div><div class="stat-label">G/A ratio</div></div>
+    <div class="stat-box"><div class="stat-value">${goalsPerMatch}</div><div class="stat-label">Goals / wed</div></div>
+    <div class="stat-box"><div class="stat-value">${convRate}%</div><div class="stat-label">Conversie</div></div>
   </div>`;
 
   if (perf.length) {
@@ -2121,12 +2182,12 @@ function renderProfiel() {
     if (!played && !goals) {
       h += `<div class="career-row">
         <div><span class="team-dot ${teamColorClass(s.team)}"></span> <span class="career-team">${s.season} ${s.team}</span></div>
-        <div class="career-stats">${s.position} (${s.bond})</div>
+        <div class="career-stats">${s.bond}</div>
       </div>`;
     } else {
       h += `<div class="career-row">
         <div><span class="team-dot ${teamColorClass(s.team)}"></span> <span class="career-team">${s.season} ${s.team}</span></div>
-        <div class="career-stats">${s.position} &middot; ${played} wed &middot; ${goals}G ${assists}A</div>
+        <div class="career-stats">${played} wed &middot; ${goals}G ${assists}A</div>
       </div>`;
     }
   });
