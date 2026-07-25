@@ -1510,9 +1510,10 @@ function showActivityDetail(id) {
     if (a.zaaltje.wentWell) h += `<p style="font-size:0.78rem;margin-bottom:4px"><strong>Ging goed:</strong></p><p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">${a.zaaltje.wentWell}</p>`;
     if (a.zaaltje.canImprove) h += `<p style="font-size:0.78rem;margin-bottom:4px"><strong>Kan beter:</strong></p><p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">${a.zaaltje.canImprove}</p>`;
     h += `<div style="display:flex;gap:8px;margin-top:20px">
-      <button class="btn btn-outline" style="flex:1" onclick="deleteActivity('${a.id}')">Verwijderen</button>
+      <button class="btn btn-outline" style="flex:1" onclick="repeatActivity('${a.id}')">Herhaal</button>
       <button class="btn btn-primary" style="flex:1" onclick="closeModal()">Sluiten</button>
-    </div>`;
+    </div>
+    <button class="btn btn-outline btn-block btn-sm" style="margin-top:8px;color:var(--negative);border-color:var(--negative)" onclick="deleteActivity('${a.id}')">Verwijderen</button>`;
     openModal(h);
     return;
   }
@@ -1582,8 +1583,130 @@ function showActivityDetail(id) {
   }
 
   h += `<div style="display:flex;gap:8px;margin-top:20px">
-    <button class="btn btn-outline" style="flex:1" onclick="deleteActivity('${a.id}')">Verwijderen</button>
+    <button class="btn btn-outline" style="flex:1" onclick="repeatActivity('${a.id}')">Herhaal</button>
+    ${hasPerf ? `<button class="btn btn-outline" style="flex:1" onclick="showCompareSelector('${a.id}')">Vergelijk</button>` : ''}
     <button class="btn btn-primary" style="flex:1" onclick="closeModal()">Sluiten</button>
+  </div>
+  <button class="btn btn-outline btn-block btn-sm" style="margin-top:8px;color:var(--negative);border-color:var(--negative)" onclick="deleteActivity('${a.id}')">Verwijderen</button>`;
+
+  openModal(h);
+}
+
+function repeatActivity(id) {
+  const a = DB.activities.find(x => x.id === id);
+  if (!a) return;
+  initFormState(a.type);
+  if (a.type === 'match') {
+    formState.team = a.team;
+    formState.bond = a.bond;
+    formState.matchType = a.matchType;
+  }
+  if (a.type === 'training') {
+    formState.location = a.location;
+    formState.timeSlot = a.timeSlot || '20:00-21:30';
+    formState.customTime = a.timeSlot && !['20:00-21:30','19:30-21:00'].includes(a.timeSlot) ? a.timeSlot : '';
+    if (formState.customTime) formState.timeSlot = 'overig';
+    if (a.duration) formState.duration = a.duration;
+    if (a.calories) formState.calories = a.calories;
+  }
+  if (a.type === 'zaaltje') {
+    formState.location = a.location;
+    if (a.duration) formState.duration = a.duration;
+  }
+  formState.mainPosition = a.mainPosition || 'flank-links';
+  closeModal();
+  navigateTo('pageEvaluatie');
+  showToast('Formulier voorgevuld');
+}
+
+function showCompareSelector(id) {
+  const current = DB.activities.find(x => x.id === id);
+  if (!current) return;
+  const others = DB.activities.filter(a =>
+    a.id !== id && (a.dribbleAttempts > 0 || a.shots > 0 || a.goals > 0 || a.assists > 0)
+  ).reverse();
+
+  let h = `<div class="modal-drag"></div>`;
+  h += `<div class="modal-title">Vergelijk met...</div>`;
+
+  if (!others.length) {
+    h += `<p style="color:var(--text-muted);font-size:0.85rem">Geen andere activiteiten met stats om mee te vergelijken.</p>`;
+    h += `<button class="btn btn-primary btn-block" style="margin-top:16px" onclick="showActivityDetail('${id}')">Terug</button>`;
+  } else {
+    others.forEach(a => {
+      const dotClass = a.type === 'match' ? teamColorClass(a.team) : a.type === 'zaaltje' ? 'grey' : 'red';
+      const label = a.type === 'match' ? 'Wedstrijd' + (a.opponent ? ' — ' + a.opponent : '') : 'Training';
+      const dr = dribbleRate(a.dribbleAttempts, a.dribbleSuccess);
+      h += `<div class="card" onclick="showComparison('${id}','${a.id}')" style="cursor:pointer;padding:12px;margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="team-dot ${dotClass}"></span>
+            <strong style="font-size:0.82rem">${label}</strong>
+          </div>
+          <span style="font-size:0.72rem;color:var(--text-muted)">${formatDate(a.date)}</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px">
+          ${a.dribbleAttempts ? dr + '% dribbel' : ''}${a.goals ? ' &middot; ' + a.goals + 'G' : ''}${a.assists ? ' ' + a.assists + 'A' : ''}
+        </div>
+      </div>`;
+    });
+    h += `<button class="btn btn-outline btn-block" style="margin-top:12px" onclick="showActivityDetail('${id}')">Terug</button>`;
+  }
+  openModal(h);
+}
+
+function showComparison(id1, id2) {
+  const a = DB.activities.find(x => x.id === id1);
+  const b = DB.activities.find(x => x.id === id2);
+  if (!a || !b) return;
+
+  const labelA = a.type === 'match' ? (a.opponent || 'Wedstrijd') : 'Training';
+  const labelB = b.type === 'match' ? (b.opponent || 'Wedstrijd') : 'Training';
+
+  let h = `<div class="modal-drag"></div>`;
+  h += `<div class="modal-title">Vergelijking</div>`;
+
+  h += `<div style="display:flex;gap:8px;margin-bottom:16px">
+    <div style="flex:1;text-align:center">
+      <div style="font-weight:700;font-size:0.82rem">${labelA}</div>
+      <div style="font-size:0.68rem;color:var(--text-muted)">${formatDate(a.date)}</div>
+    </div>
+    <div style="width:1px;background:var(--border)"></div>
+    <div style="flex:1;text-align:center">
+      <div style="font-weight:700;font-size:0.82rem">${labelB}</div>
+      <div style="font-size:0.68rem;color:var(--text-muted)">${formatDate(b.date)}</div>
+    </div>
+  </div>`;
+
+  function compRow(label, valA, valB, higherBetter) {
+    const nA = parseFloat(valA) || 0, nB = parseFloat(valB) || 0;
+    let cA = '', cB = '';
+    if (higherBetter !== undefined && nA !== nB) {
+      cA = (higherBetter ? nA > nB : nA < nB) ? 'color:var(--positive)' : 'color:var(--negative)';
+      cB = (higherBetter ? nB > nA : nB < nA) ? 'color:var(--positive)' : 'color:var(--negative)';
+    }
+    return `<div style="display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1;text-align:center;font-weight:700;font-size:1rem;${cA}">${valA}</div>
+      <div style="width:90px;text-align:center;font-size:0.68rem;color:var(--text-muted);text-transform:uppercase">${label}</div>
+      <div style="flex:1;text-align:center;font-weight:700;font-size:1rem;${cB}">${valB}</div>
+    </div>`;
+  }
+
+  const drA = dribbleRate(a.dribbleAttempts, a.dribbleSuccess);
+  const drB = dribbleRate(b.dribbleAttempts, b.dribbleSuccess);
+  const saA = shotAccuracy(a.shots, a.shotsOnTarget);
+  const saB = shotAccuracy(b.shots, b.shotsOnTarget);
+
+  h += compRow('Dribbel%', drA + '%', drB + '%', true);
+  h += compRow('Dribbels', a.dribbleSuccess + '/' + a.dribbleAttempts, b.dribbleSuccess + '/' + b.dribbleAttempts, undefined);
+  h += compRow('Schot%', saA + '%', saB + '%', true);
+  h += compRow('Goals', a.goals || 0, b.goals || 0, true);
+  h += compRow('Assists', a.assists || 0, b.assists || 0, true);
+  h += compRow('Gevoel', feelingEmoji(a.feeling), feelingEmoji(b.feeling), undefined);
+
+  h += `<div style="display:flex;gap:8px;margin-top:20px">
+    <button class="btn btn-outline" style="flex:1" onclick="showCompareSelector('${id1}')">Ander kiezen</button>
+    <button class="btn btn-primary" style="flex:1" onclick="showActivityDetail('${id1}')">Terug</button>
   </div>`;
 
   openModal(h);
