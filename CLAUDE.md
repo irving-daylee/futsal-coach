@@ -4,7 +4,7 @@ Persoonlijke futsal evaluatie & coaching app voor Irving Liesdek. Focus: betere 
 
 ## Architectuur
 
-Single-file HTML app (`index.html`, ~2500 regels). Alle CSS + JS inline, geen build step, geen framework. Draait op `python3 -m http.server 8778` via `.claude/launch.json`.
+Single-file HTML app (`index.html`, ~2800 regels). Alle CSS + JS inline, geen build step, geen framework. Draait op `python3 -m http.server 8778` via `.claude/launch.json`.
 
 **Data**: localStorage key `futsalCoach_v1`. Geen backend/database. Alle state zit in het globale `DB` object (geladen bij start, gesaved na elke mutatie).
 
@@ -41,10 +41,26 @@ Dashboard | Evaluatie | Historie | Stats | Coaching | Profiel
 ## Data model
 
 `DB.profile` — spelersprofiel (naam, geboortedatum, voet, positie, rugnummers)
-`DB.activities[]` — ingevoerde evaluaties (training/wedstrijd met stats, gevoel, voorbereiding, focus)
+`DB.activities[]` — ingevoerde evaluaties (training/wedstrijd/zaaltje met stats, gevoel, voorbereiding, focus)
 `DB.historicalSeasons[]` — voorgeladen carrièredata
 `DB.goals[]` — persoonlijke doelen
 `DB.settings` — app-instellingen
+
+## Activiteittypen
+
+- **Wedstrijd**: team (JB/IJV), bond (SRZA/KNVB), tegenstander, speelminuten, volledige stats + evaluatie
+- **Training**: maandagen bij IJV in Spakenburg, optioneel partijspel met stats, volledige evaluatie
+- **Zaaltje**: zondagen in Sporthal de Vrijbuiter Almere, dedicated vragen (eigen spel, geoefend, ging goed, kan beter), geen stats
+
+## Features
+
+- **Dashboard**: 6 stats (3+3), dribbel split wedstrijden/trainingen, klikbare laatste activiteit, volgende training
+- **Herhaal**: vanuit detail modal formulier voorvullen met type/team/locatie van een eerdere activiteit (verse datum, lege stats)
+- **Vergelijk**: twee activiteiten naast elkaar met kleurcodering (groen=beter, rood=slechter) op dribbel%, schot%, goals, assists
+- **Carrière**: gesplitst in KNVB en SRZA secties met subtotalen, training stats tellen niet mee in all-time
+- **Profiel**: zwarte spelerskaart, dit seizoen stats, dribbels gesplitst per wedstrijden/trainingen
+- **Voorbereiding**: checklist met "Geen bijzonderheden", gewicht/water met komma-invoer
+- **Coaching engine**: Kaizen, PDCA, Hansei, Shoshin, Gambatte — concreet en feitelijk, nooit vaag
 
 ## Coaching engine (Japanse methoden)
 
@@ -59,5 +75,8 @@ Dashboard | Evaluatie | Historie | Stats | Coaching | Profiel
 - Geen comments in code tenzij niet-obvious waarom.
 - Geen externe dependencies behalve Google Fonts CDN (Inter).
 - Test altijd op mobile (375x812) — primair een telefoon-app.
-- localStorage limiet (~5-10MB) — geen foto's opslaan.
+- localStorage limiet (~5-10MB) — foto's eten dit op (profielfoto als base64 JPEG 200x200).
 - Coaching tips altijd concreet en feitelijk, nooit vaag/zweverig.
+- Training dot is rood (IJV), zaaltje dot is grijs, wedstrijd dot volgt teamkleur.
+- Gewicht/water inputs: `type="text" inputmode="decimal"`, komma wordt omgezet naar punt.
+- Duur/calorieën zijn placeholders (niet pre-filled), zaaltje datum prefilt op zondag, training op maandag.
