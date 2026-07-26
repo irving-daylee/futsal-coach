@@ -865,7 +865,7 @@ function renderDashboard() {
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   });
   const thisMonthMatches = thisMonth.filter(a => a.type === 'match');
-  const monthDribActs = thisMonthMatches.filter(a => a.dribbleAttempts > 0);
+  const monthDribActs = thisMonth.filter(a => a.dribbleAttempts > 0);
   const avgDribPerAct = monthDribActs.length ? (monthDribActs.reduce((s, a) => s + (a.dribbleSuccess || 0), 0) / monthDribActs.length).toFixed(1) : '0';
   const monthDribRate = monthDribActs.length ? Math.round(avg(monthDribActs.map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess)))) : 0;
   const monthGoals = thisMonthMatches.reduce((s, a) => s + (a.goals || 0), 0);
