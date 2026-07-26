@@ -1,0 +1,11 @@
+{
+  "name": "futsal-coach",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node scripts/smoke-test.js"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  }
+}

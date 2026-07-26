@@ -530,7 +530,7 @@ h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
 <body>
 
 <div class="topbar">
-  <span class="topbar-logo">Futsal Coach</span>
+  <span class="topbar-logo">Futsal Coach <span style="font-size:0.55rem;font-weight:400;opacity:0.5;margin-left:4px" id="appVersion"></span></span>
   <span class="topbar-initials" onclick="navigateTo('pageProfiel')">IL</span>
 </div>
 
@@ -580,7 +580,9 @@ h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
    DATA LAYER
    ============================================================ */
 
+const APP_VERSION = '1.1.0';
 const STORAGE_KEY = 'futsalCoach_v1';
+const DATA_VERSION = 1;
 
 const HISTORICAL_SEASONS = [
   { season: '2025/26', team: 'Ijsselmeervogels', bond: 'KNVB',
@@ -615,8 +617,17 @@ function defaultData() {
     goals: [],
     settings: { currentSeason: '2026/27' },
     nextActivityId: 1,
-    nextGoalId: 1
+    nextGoalId: 1,
+    dataVersion: DATA_VERSION
   };
+}
+
+function migrateData(d) {
+  const v = d.dataVersion || 0;
+  // Toekomstige migraties hier toevoegen:
+  // if (v < 2) { /* migratie naar v2 */ }
+  d.dataVersion = DATA_VERSION;
+  return d;
 }
 
 function loadData() {
@@ -628,6 +639,7 @@ function loadData() {
       if (!d.nextGoalId) d.nextGoalId = (d.goals || []).length + 1;
       if (!d.goals) d.goals = [];
       d.historicalSeasons = JSON.parse(JSON.stringify(HISTORICAL_SEASONS));
+      migrateData(d);
       return d;
     }
   } catch (e) {}
@@ -852,13 +864,13 @@ function renderDashboard() {
     const d = new Date(a.date);
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   });
-  const monthPerf = thisMonth.filter(a => a.dribbleAttempts > 0 || a.goals > 0);
-  const monthDribActs = thisMonth.filter(a => a.dribbleAttempts > 0);
+  const thisMonthMatches = thisMonth.filter(a => a.type === 'match');
+  const monthDribActs = thisMonthMatches.filter(a => a.dribbleAttempts > 0);
   const avgDribPerAct = monthDribActs.length ? (monthDribActs.reduce((s, a) => s + (a.dribbleSuccess || 0), 0) / monthDribActs.length).toFixed(1) : '0';
   const monthDribRate = monthDribActs.length ? Math.round(avg(monthDribActs.map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess)))) : 0;
-  const monthGoals = thisMonth.reduce((s, a) => s + (a.goals || 0), 0);
-  const monthAssists = thisMonth.reduce((s, a) => s + (a.assists || 0), 0);
-  const monthShots = thisMonth.reduce((s, a) => s + (a.shots || 0), 0);
+  const monthGoals = thisMonthMatches.reduce((s, a) => s + (a.goals || 0), 0);
+  const monthAssists = thisMonthMatches.reduce((s, a) => s + (a.assists || 0), 0);
+  const monthShots = thisMonthMatches.reduce((s, a) => s + (a.shots || 0), 0);
 
   const monthNames = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
   h += `<div class="section-title" style="margin-top:4px">Overzicht ${monthNames[now.getMonth()]}</div>`;
@@ -876,6 +888,7 @@ function renderDashboard() {
       <div class="stat-label">Dribbel ratio</div>
     </div>
   </div>`;
+  h += `<div style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin:8px 0 2px">Wedstrijden</div>`;
   h += `<div class="stat-grid stat-grid-3" style="margin-top:0">
     <div class="stat-box">
       <div class="stat-value">${monthGoals}</div>
@@ -987,7 +1000,7 @@ function calcActivityStreak() {
 }
 
 function calcGoalProgress(goal) {
-  const perf = getActivitiesWithPerformance();
+  const perf = DB.activities.filter(a => a.type === 'match');
   if (!perf.length) return 0;
   if (goal.type === 'percentage') {
     if (goal.metric === 'dribbleRate') {
@@ -1750,7 +1763,7 @@ function renderStats() {
     filtered = allAct;
   }
 
-  const perf = filtered.filter(a => a.type === 'match' || (a.type === 'training' && a.hasPartijspel));
+  const perf = statsPeriod === 'training' ? filtered.filter(a => a.type === 'training' && a.hasPartijspel) : filtered.filter(a => a.type === 'match');
   const withDrib = perf.filter(a => a.dribbleAttempts > 0);
   const withShots = perf.filter(a => a.shots > 0);
 
@@ -1779,37 +1792,62 @@ function renderStats() {
   const totalDribAttempts = perf.reduce((s, a) => s + a.dribbleAttempts, 0);
   const totalDribSuccess = perf.reduce((s, a) => s + a.dribbleSuccess, 0);
 
-  h += `<div class="stat-grid">
-    <div class="stat-box"><div class="stat-value">${filtered.length}</div><div class="stat-label">Activiteiten</div></div>
-    <div class="stat-box"><div class="stat-value">${totalGoals}</div><div class="stat-label">Goals</div></div>
-    <div class="stat-box"><div class="stat-value">${totalAssists}</div><div class="stat-label">Assists</div></div>
-    <div class="stat-box"><div class="stat-value">${avgDribRate}%</div><div class="stat-label">Dribbel%</div></div>
-  </div>`;
+  if (statsPeriod === 'training') {
+    const partijspelCount = filtered.filter(a => a.hasPartijspel).length;
+    h += `<div class="stat-grid stat-grid-3">
+      <div class="stat-box"><div class="stat-value">${filtered.length}</div><div class="stat-label">Trainingen</div></div>
+      <div class="stat-box"><div class="stat-value">${partijspelCount}</div><div class="stat-label">Met partijspel</div></div>
+      <div class="stat-box"><div class="stat-value">${avgDribRate}%</div><div class="stat-label">Dribbel%</div></div>
+    </div>`;
+    h += `<div class="card">
+      <div class="card-title" style="margin-bottom:8px">Dribbels (oefenen)</div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">
+        ${totalDribSuccess}/${totalDribAttempts} geslaagd (${dribbleRate(totalDribAttempts, totalDribSuccess)}%) &middot; Gem. ${avgDribRate}% per training
+      </div>
+      ${withDrib.length >= 2 ? renderTrendChart(withDrib.map(a => ({ label: formatDate(a.date).split(' ')[1], value: dribbleRate(a.dribbleAttempts, a.dribbleSuccess) })).slice(-10), 'var(--primary)') : '<p class="text-xs text-muted">Minimaal 2 trainingen met partijspel nodig voor trend</p>'}
+    </div>`;
+  } else {
+    const statsMatches = filtered.filter(a => a.type === 'match');
+    const statsTrainings = filtered.filter(a => a.type === 'training');
+    const statsZaaltjes = filtered.filter(a => a.type === 'zaaltje');
+    h += `<div class="stat-grid">
+      <div class="stat-box"><div class="stat-value">${filtered.length}</div><div class="stat-label">Activiteiten</div></div>
+      <div class="stat-box"><div class="stat-value">${statsMatches.length}</div><div class="stat-label">Wedstrijden</div></div>
+      <div class="stat-box"><div class="stat-value">${statsTrainings.length}</div><div class="stat-label">Trainingen</div></div>
+      <div class="stat-box"><div class="stat-value">${statsZaaltjes.length}</div><div class="stat-label">Zaaltjes</div></div>
+    </div>`;
+    h += `<div class="section-title" style="font-size:0.7rem">Prestaties (wedstrijden)</div>`;
+    h += `<div class="stat-grid">
+      <div class="stat-box"><div class="stat-value">${totalGoals}</div><div class="stat-label">Goals</div></div>
+      <div class="stat-box"><div class="stat-value">${totalAssists}</div><div class="stat-label">Assists</div></div>
+      <div class="stat-box"><div class="stat-value">${avgDribRate}%</div><div class="stat-label">Dribbel%</div></div>
+    </div>`;
 
-  h += `<div class="card">
-    <div class="card-title" style="margin-bottom:8px">Dribbels</div>
-    <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">
-      ${totalDribSuccess}/${totalDribAttempts} geslaagd (${dribbleRate(totalDribAttempts, totalDribSuccess)}%) &middot; Gem. ${avgDribRate}% per activiteit
-    </div>
-    ${withDrib.length >= 2 ? renderTrendChart(withDrib.map(a => ({ label: formatDate(a.date).split(' ')[1], value: dribbleRate(a.dribbleAttempts, a.dribbleSuccess) })).slice(-10), 'var(--primary)') : '<p class="text-xs text-muted">Minimaal 2 activiteiten nodig voor trend</p>'}
-  </div>`;
+    h += `<div class="card">
+      <div class="card-title" style="margin-bottom:8px">Dribbels</div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">
+        ${totalDribSuccess}/${totalDribAttempts} geslaagd (${dribbleRate(totalDribAttempts, totalDribSuccess)}%) &middot; Gem. ${avgDribRate}% per wedstrijd
+      </div>
+      ${withDrib.length >= 2 ? renderTrendChart(withDrib.map(a => ({ label: formatDate(a.date).split(' ')[1], value: dribbleRate(a.dribbleAttempts, a.dribbleSuccess) })).slice(-10), 'var(--primary)') : '<p class="text-xs text-muted">Minimaal 2 activiteiten nodig voor trend</p>'}
+    </div>`;
 
-  h += `<div class="card">
-    <div class="card-title" style="margin-bottom:8px">Schoten</div>
-    <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">
-      ${avgShotAcc}% op doel &middot; ${avgConv}% conversie
-    </div>
-    ${withShots.length >= 2 ? renderTrendChart(withShots.map(a => ({ label: formatDate(a.date).split(' ')[1], value: conversionRate(a.shots, a.goals) })).slice(-10), 'var(--blue)') : '<p class="text-xs text-muted">Minimaal 2 activiteiten nodig voor trend</p>'}
-  </div>`;
+    h += `<div class="card">
+      <div class="card-title" style="margin-bottom:8px">Schoten</div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">
+        ${avgShotAcc}% op doel &middot; ${avgConv}% conversie
+      </div>
+      ${withShots.length >= 2 ? renderTrendChart(withShots.map(a => ({ label: formatDate(a.date).split(' ')[1], value: conversionRate(a.shots, a.goals) })).slice(-10), 'var(--blue)') : '<p class="text-xs text-muted">Minimaal 2 activiteiten nodig voor trend</p>'}
+    </div>`;
 
-  h += `<div class="card">
-    <div class="card-title" style="margin-bottom:8px">Goals & Assists per activiteit</div>
-    ${perf.length >= 2 ? renderBarChart(perf.map(a => ({
-      label: formatDate(a.date).split(' ')[1],
-      goals: a.goals,
-      assists: a.assists
-    })).slice(-10)) : '<p class="text-xs text-muted">Minimaal 2 activiteiten nodig</p>'}
-  </div>`;
+    h += `<div class="card">
+      <div class="card-title" style="margin-bottom:8px">Goals & Assists per wedstrijd</div>
+      ${perf.length >= 2 ? renderBarChart(perf.map(a => ({
+        label: formatDate(a.date).split(' ')[1],
+        goals: a.goals,
+        assists: a.assists
+      })).slice(-10)) : '<p class="text-xs text-muted">Minimaal 2 activiteiten nodig</p>'}
+    </div>`;
+  }
 
   const activeGoals = DB.goals.filter(g => g.active);
   if (activeGoals.length) {
@@ -2000,7 +2038,7 @@ function saveGoal() {
 function renderCoaching() {
   const c = document.getElementById('coachingContent');
   const activities = DB.activities;
-  const perf = getActivitiesWithPerformance();
+  const perf = activities.filter(a => a.type === 'match');
 
   let h = '';
 
@@ -2142,7 +2180,7 @@ function generatePerformanceInsights(perf) {
 
 function generatePreparationInsights(activities) {
   const ins = [];
-  const perf = activities.filter(a => (a.type === 'match' || a.hasPartijspel) && a.dribbleAttempts > 0);
+  const perf = activities.filter(a => a.type === 'match' && a.dribbleAttempts > 0);
   if (perf.length < 4) return ins;
 
   const tired = perf.filter(a => a.preparation.tiredBody);
@@ -2380,29 +2418,36 @@ function renderProfiel() {
   const perf = getActivitiesWithPerformance();
   const matches = DB.activities.filter(a => a.type === 'match');
   const trainings = DB.activities.filter(a => a.type === 'training');
-  const totalG = perf.reduce((s, a) => s + a.goals, 0);
-  const totalA = perf.reduce((s, a) => s + a.assists, 0);
-  const avgDR = perf.filter(a => a.dribbleAttempts > 0).length
-    ? Math.round(avg(perf.filter(a => a.dribbleAttempts > 0).map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess))))
+  const matchPerf = matches;
+  const totalG = matchPerf.reduce((s, a) => s + a.goals, 0);
+  const totalA = matchPerf.reduce((s, a) => s + a.assists, 0);
+  const matchDribWithData = matchPerf.filter(a => a.dribbleAttempts > 0);
+  const avgDR = matchDribWithData.length
+    ? Math.round(avg(matchDribWithData.map(a => dribbleRate(a.dribbleAttempts, a.dribbleSuccess))))
     : 0;
 
   const gaRatio = totalA > 0 ? (totalG / totalA).toFixed(2) : totalG > 0 ? totalG.toFixed(2) : '0';
   const goalsPerMatch = matches.length > 0 ? (totalG / matches.length).toFixed(2) : '0';
-  const totalShots = perf.reduce((s, a) => s + (a.shots || 0), 0);
-  const totalShotsOnTarget = perf.reduce((s, a) => s + (a.shotsOnTarget || 0), 0);
+  const totalShots = matchPerf.reduce((s, a) => s + (a.shots || 0), 0);
+  const totalShotsOnTarget = matchPerf.reduce((s, a) => s + (a.shotsOnTarget || 0), 0);
   const convRate = totalShots > 0 ? Math.round((totalG / totalShots) * 100) : 0;
 
-  h += `<div class="stat-grid">
+  const zaaltjes = DB.activities.filter(a => a.type === 'zaaltje');
+  h += `<div class="stat-grid stat-grid-3">
     <div class="stat-box"><div class="stat-value">${matches.length}</div><div class="stat-label">Wedstrijden</div></div>
     <div class="stat-box"><div class="stat-value">${trainings.length}</div><div class="stat-label">Trainingen</div></div>
+    <div class="stat-box"><div class="stat-value">${zaaltjes.length}</div><div class="stat-label">Zaaltjes</div></div>
+  </div>`;
+  h += `<div class="section-title" style="font-size:0.7rem">Prestaties (wedstrijden)</div>`;
+  h += `<div class="stat-grid">
     <div class="stat-box"><div class="stat-value">${totalG}</div><div class="stat-label">Goals</div></div>
     <div class="stat-box"><div class="stat-value">${totalA}</div><div class="stat-label">Assists</div></div>
-  </div>`;
-
-  h += `<div class="stat-grid">
     <div class="stat-box"><div class="stat-value">${gaRatio}</div><div class="stat-label">G/A ratio</div></div>
-    <div class="stat-box"><div class="stat-value">${goalsPerMatch}</div><div class="stat-label">Goals / wed</div></div>
     <div class="stat-box"><div class="stat-value">${convRate}%</div><div class="stat-label">Conversie</div></div>
+  </div>`;
+  h += `<div class="stat-grid stat-grid-2">
+    <div class="stat-box"><div class="stat-value">${goalsPerMatch}</div><div class="stat-label">Goals / wed</div></div>
+    <div class="stat-box"><div class="stat-value">${avgDR}%</div><div class="stat-label">Dribbel%</div></div>
   </div>`;
 
   const matchDrib = perf.filter(a => a.type === 'match' && a.dribbleAttempts > 0);
@@ -2538,6 +2583,7 @@ function resetAllData() {
    INIT
    ============================================================ */
 
+document.getElementById('appVersion').textContent = 'v' + APP_VERSION;
 renderDashboard();
 
 if ('serviceWorker' in navigator) {
