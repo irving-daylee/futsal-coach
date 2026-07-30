@@ -7,6 +7,17 @@ Volgt [Semantic Versioning](https://semver.org/lang/nl/): `MAJOR.MINOR.PATCH`.
 - **MINOR** — nieuwe feature of significant gedragsverandering
 - **PATCH** — bugfix, kleine aanpassing, tekst/label wijziging
 
+## [1.3.0] - 2026-07-30
+
+### Added
+- PIN-scherm bij het openen van de app (4-cijferige code, shake-animatie bij foute invoer)
+- Auth-state onthouden in localStorage — PIN hoeft maar één keer per browser ingevoerd
+
+## [1.2.0] - 2026-07-30
+
+### Added
+- CHANGELOG.md met retroactieve semver-toewijzing voor alle versies
+
 ## [1.1.1] - 2026-07-26
 
 ### Fixed

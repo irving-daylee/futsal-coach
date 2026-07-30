@@ -525,9 +525,89 @@ h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
   .bottomnav button .nav-icon { font-size: 1rem; }
 }
 
+/* === PIN LOCK === */
+.pin-lock {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--primary);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 24px;
+  color: var(--on-primary);
+}
+.pin-lock.hidden { display: none; }
+.pin-lock h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }
+.pin-lock .pin-subtitle { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
+.pin-dots {
+  display: flex; gap: 12px; margin: 8px 0;
+}
+.pin-dots .dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  transition: all 0.15s ease;
+}
+.pin-dots .dot.filled {
+  background: var(--on-primary);
+  border-color: var(--on-primary);
+}
+.pin-dots .dot.error {
+  border-color: var(--negative);
+  background: var(--negative);
+}
+.pin-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 72px);
+  gap: 12px;
+  margin-top: 8px;
+}
+.pin-key {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: var(--on-primary);
+  font-family: inherit;
+  font-size: 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.pin-key:active { background: rgba(255,255,255,0.12); }
+.pin-key.empty { border-color: transparent; pointer-events: none; }
+.pin-key.backspace { font-size: 1.2rem; border-color: transparent; }
+.pin-key.backspace:active { background: rgba(255,255,255,0.08); }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
 </style>
 </head>
 <body>
+
+<div class="pin-lock" id="pinLock">
+  <h1>Futsal Coach</h1>
+  <p class="pin-subtitle">Voer je PIN in</p>
+  <div class="pin-dots" id="pinDots">
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+  <div class="pin-keypad" id="pinKeypad">
+    <button class="pin-key" data-key="1">1</button>
+    <button class="pin-key" data-key="2">2</button>
+    <button class="pin-key" data-key="3">3</button>
+    <button class="pin-key" data-key="4">4</button>
+    <button class="pin-key" data-key="5">5</button>
+    <button class="pin-key" data-key="6">6</button>
+    <button class="pin-key" data-key="7">7</button>
+    <button class="pin-key" data-key="8">8</button>
+    <button class="pin-key" data-key="9">9</button>
+    <button class="pin-key empty"></button>
+    <button class="pin-key" data-key="0">0</button>
+    <button class="pin-key backspace" data-key="back">&#9003;</button>
+  </div>
+</div>
 
 <div class="topbar">
   <span class="topbar-logo">Futsal Coach <span style="font-size:0.55rem;font-weight:400;opacity:0.5;margin-left:4px" id="appVersion"></span></span>
@@ -580,9 +660,11 @@ h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
    DATA LAYER
    ============================================================ */
 
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.3.0';
 const STORAGE_KEY = 'futsalCoach_v1';
 const DATA_VERSION = 1;
+const PIN_CODE = '0707';
+const PIN_KEY = 'futsalCoach_auth';
 
 const HISTORICAL_SEASONS = [
   { season: '2025/26', team: 'Ijsselmeervogels', bond: 'KNVB',
@@ -2580,11 +2662,71 @@ function resetAllData() {
 }
 
 /* ============================================================
+   PIN LOCK
+   ============================================================ */
+
+let pinInput = '';
+const pinLock = document.getElementById('pinLock');
+const pinDots = document.getElementById('pinDots').children;
+
+function checkPinAuth() {
+  return localStorage.getItem(PIN_KEY) === 'true';
+}
+
+function unlockApp() {
+  localStorage.setItem(PIN_KEY, 'true');
+  pinLock.classList.add('hidden');
+  renderDashboard();
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    pinDots[i].classList.toggle('filled', i < pinInput.length);
+    pinDots[i].classList.remove('error');
+  }
+}
+
+function shakePin() {
+  for (let i = 0; i < 4; i++) {
+    pinDots[i].classList.add('error');
+    pinDots[i].classList.remove('filled');
+  }
+  pinLock.style.animation = 'shake 0.4s ease';
+  setTimeout(() => { pinLock.style.animation = ''; pinInput = ''; updatePinDots(); }, 500);
+}
+
+document.getElementById('pinKeypad').addEventListener('click', e => {
+  const btn = e.target.closest('.pin-key');
+  if (!btn) return;
+  const key = btn.dataset.key;
+  if (!key) return;
+  if (key === 'back') {
+    pinInput = pinInput.slice(0, -1);
+    updatePinDots();
+    return;
+  }
+  if (pinInput.length >= 4) return;
+  pinInput += key;
+  updatePinDots();
+  if (pinInput.length === 4) {
+    if (pinInput === PIN_CODE) {
+      setTimeout(unlockApp, 150);
+    } else {
+      setTimeout(shakePin, 150);
+    }
+  }
+});
+
+/* ============================================================
    INIT
    ============================================================ */
 
 document.getElementById('appVersion').textContent = 'v' + APP_VERSION;
-renderDashboard();
+
+if (checkPinAuth()) {
+  pinLock.classList.add('hidden');
+  renderDashboard();
+}
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
