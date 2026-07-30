@@ -7,6 +7,11 @@ Volgt [Semantic Versioning](https://semver.org/lang/nl/): `MAJOR.MINOR.PATCH`.
 - **MINOR** — nieuwe feature of significant gedragsverandering
 - **PATCH** — bugfix, kleine aanpassing, tekst/label wijziging
 
+## [1.3.1] - 2026-07-30
+
+### Changed
+- PIN-code gewijzigd
+
 ## [1.3.0] - 2026-07-30
 
 ### Added
