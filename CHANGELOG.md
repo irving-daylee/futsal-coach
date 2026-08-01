@@ -7,6 +7,14 @@ Volgt [Semantic Versioning](https://semver.org/lang/nl/): `MAJOR.MINOR.PATCH`.
 - **MINOR** — nieuwe feature of significant gedragsverandering
 - **PATCH** — bugfix, kleine aanpassing, tekst/label wijziging
 
+## [1.4.1] - 2026-08-01
+
+### Changed
+- Maandagtrainingen automatisch zichtbaar in aankomende activiteiten (ook zonder kalender-event)
+- "VVIJV Futsal" / "VVIJ Futsal" hernoemd naar "Ijsselmeervogels" in alle titels
+- "Bekijk alle" link opent modal met volledig overzicht
+- Voetbal.nl (sportlink) feed toegevoegd — KNVB-bekerwedstrijden verschijnen nu ook
+
 ## [1.4.0] - 2026-08-01
 
 ### Added
