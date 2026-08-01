@@ -696,7 +696,7 @@ h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
    DATA LAYER
    ============================================================ */
 
-const APP_VERSION = '1.4.1';
+const APP_VERSION = '1.5.0';
 const STORAGE_KEY = 'futsalCoach_v1';
 const DATA_VERSION = 1;
 const PIN_HASH = 'c5f9eb390a108b4859979e6b4356f30d03f48d8d836596fc8b09ab8307ef03f0';
@@ -731,6 +731,7 @@ function defaultData() {
       numbers: { 'Joga Bonito': 7, 'Ijsselmeervogels': 17 }
     },
     activities: [],
+    customCalEvents: [],
     historicalSeasons: JSON.parse(JSON.stringify(HISTORICAL_SEASONS)),
     goals: [],
     settings: { currentSeason: '2026/27' },
@@ -756,6 +757,7 @@ function loadData() {
       if (!d.nextActivityId) d.nextActivityId = (d.activities || []).length + 1;
       if (!d.nextGoalId) d.nextGoalId = (d.goals || []).length + 1;
       if (!d.goals) d.goals = [];
+      if (!d.customCalEvents) d.customCalEvents = [];
       d.historicalSeasons = JSON.parse(JSON.stringify(HISTORICAL_SEASONS));
       migrateData(d);
       return d;
@@ -785,7 +787,8 @@ function loadCalendar() {
         location: 'Sporthal de Toekomst, Spakenburg',
         source: 'auto', type: 'training'
       }));
-      calendarEvents = scraped.concat(autoTrainings).sort((a, b) => {
+      const custom = (DB.customCalEvents || []).filter(e => e.date >= todayStr);
+      calendarEvents = scraped.concat(autoTrainings).concat(custom).sort((a, b) => {
         if (a.date !== b.date) return a.date.localeCompare(b.date);
         return (a.time || '').localeCompare(b.time || '');
       });
@@ -1097,7 +1100,10 @@ function renderDashboard() {
   }
 
   if (calendarEvents.length) {
-    h += `<div class="section-title" style="margin-top:4px">Aankomende activiteiten</div>`;
+    h += `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+      <div class="section-title" style="margin:0">Aankomende activiteiten</div>
+      <button onclick="showAddCalEventModal()" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--primary);color:var(--on-primary);font-size:1.1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">+</button>
+    </div>`;
     h += `<div class="card" style="padding:4px 16px">`;
     const upcoming = calendarEvents.slice(0, 5);
     const todayStr = new Date().toISOString().split('T')[0];
@@ -1275,6 +1281,62 @@ function renderCalEvent(ev, d, isPast, displayTitle, inModal) {
       ${!isPast ? `<button class="cal-btn" onclick="${inModal ? 'closeModal();' : ''}prefillFromCalendar('${ev.id}')">Evaluatie invullen</button>` : ''}
     </div>
   </div>`;
+}
+
+function showAddCalEventModal() {
+  const today = new Date().toISOString().split('T')[0];
+  const h = `<div class="modal-title">Activiteit inplannen</div>
+    <div style="padding:0 4px">
+      <label class="form-label">Type</label>
+      <select id="calNewType" class="form-select">
+        <option value="training">Training</option>
+        <option value="preseason">Preseason</option>
+        <option value="zaaltje">Zaaltje</option>
+        <option value="srza">SRZA wedstrijd</option>
+        <option value="knvb">KNVB wedstrijd</option>
+      </select>
+      <label class="form-label">Datum</label>
+      <input type="date" id="calNewDate" class="form-input" value="${today}">
+      <label class="form-label">Titel</label>
+      <input type="text" id="calNewTitle" class="form-input" placeholder="bijv. Ijsselmeervogels - Opponent">
+      <div style="display:flex;gap:8px">
+        <div style="flex:1"><label class="form-label">Begintijd</label><input type="time" id="calNewTime" class="form-input" value="20:00"></div>
+        <div style="flex:1"><label class="form-label">Eindtijd</label><input type="time" id="calNewEnd" class="form-input" value="21:30"></div>
+      </div>
+      <label class="form-label">Locatie</label>
+      <input type="text" id="calNewLoc" class="form-input" placeholder="Sporthal de Toekomst, Spakenburg" value="Sporthal de Toekomst, Spakenburg">
+      <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="saveCustomCalEvent()">Inplannen</button>
+    </div>`;
+  openModal(h);
+}
+
+function saveCustomCalEvent() {
+  const type = document.getElementById('calNewType').value;
+  const date = document.getElementById('calNewDate').value;
+  const title = document.getElementById('calNewTitle').value.trim();
+  const time = document.getElementById('calNewTime').value;
+  const endTime = document.getElementById('calNewEnd').value;
+  const location = document.getElementById('calNewLoc').value.trim();
+  if (!date) { showToast('Kies een datum'); return; }
+  const ev = {
+    id: 'custom_' + Date.now(),
+    title: title || calTypeLabel(type),
+    date, time: time || null, endTime: endTime || null,
+    location: location || null,
+    source: 'custom', type
+  };
+  if (!DB.customCalEvents) DB.customCalEvents = [];
+  DB.customCalEvents.push(ev);
+  saveData();
+  closeModal();
+  loadCalendar();
+  showToast('Activiteit ingepland');
+}
+
+function deleteCustomCalEvent(id) {
+  DB.customCalEvents = (DB.customCalEvents || []).filter(e => e.id !== id);
+  saveData();
+  loadCalendar();
 }
 
 function showAllCalendarEvents() {

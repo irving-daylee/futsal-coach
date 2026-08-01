@@ -7,6 +7,12 @@ Volgt [Semantic Versioning](https://semver.org/lang/nl/): `MAJOR.MINOR.PATCH`.
 - **MINOR** — nieuwe feature of significant gedragsverandering
 - **PATCH** — bugfix, kleine aanpassing, tekst/label wijziging
 
+## [1.5.0] - 2026-08-01
+
+### Added
+- Handmatig activiteiten inplannen via de + knop op het dashboard
+- Formulier met type, datum, titel, tijd en locatie — opgeslagen in localStorage
+
 ## [1.4.1] - 2026-08-01
 
 ### Changed
