@@ -7,6 +7,15 @@ Volgt [Semantic Versioning](https://semver.org/lang/nl/): `MAJOR.MINOR.PATCH`.
 - **MINOR** — nieuwe feature of significant gedragsverandering
 - **PATCH** — bugfix, kleine aanpassing, tekst/label wijziging
 
+## [1.4.0] - 2026-08-01
+
+### Added
+- Agenda-koppeling: iCloud, SRZA en voetbal.nl kalenders automatisch ophalen
+- "Aankomende activiteiten" op het dashboard met datum, type-label en locatie
+- "Evaluatie invullen" knop per activiteit — vult type, datum, locatie en tegenstander voor
+- Dagelijkse GitHub Actions workflow (`calendar.yml`) die de feeds scraped
+- Scraper (`scripts/scrape-calendar.js`) met ICS-parsing en filtering op futsal-events
+
 ## [1.3.2] - 2026-07-31
 
 ### Changed

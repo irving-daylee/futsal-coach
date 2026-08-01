@@ -34,6 +34,14 @@ function assert(cond, msg) {
 
 const tick = () => new Promise(r => setTimeout(r, 0));
 
+function seedDate(dayOfMonth) {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(Math.min(dayOfMonth, 28)).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 const SEED_DATA = {
   profile: {
     name: 'Irving Liesdek',
@@ -44,7 +52,7 @@ const SEED_DATA = {
   },
   activities: [
     {
-      id: 'test-match-1', type: 'match', date: '2026-07-20',
+      id: 'test-match-1', type: 'match', date: seedDate(5),
       team: 'Joga Bonito', bond: 'SRZA', matchType: 'competitie',
       opponent: 'FC Test', playMinutes: 40,
       dribbleAttempts: 10, dribbleSuccess: 7,
@@ -57,7 +65,7 @@ const SEED_DATA = {
       focusPoints: []
     },
     {
-      id: 'test-match-2', type: 'match', date: '2026-07-22',
+      id: 'test-match-2', type: 'match', date: seedDate(7),
       team: 'Ijsselmeervogels', bond: 'KNVB', matchType: 'competitie',
       opponent: 'Testploeg', playMinutes: 40,
       dribbleAttempts: 8, dribbleSuccess: 5,
@@ -70,7 +78,7 @@ const SEED_DATA = {
       focusPoints: []
     },
     {
-      id: 'test-train-1', type: 'training', date: '2026-07-21',
+      id: 'test-train-1', type: 'training', date: seedDate(6),
       hasPartijspel: true,
       dribbleAttempts: 12, dribbleSuccess: 9,
       shots: 4, shotsOnTarget: 3, goals: 3, assists: 2,
@@ -84,7 +92,7 @@ const SEED_DATA = {
       timeSlot: '20:00-21:30', duration: 90, calories: 1000
     },
     {
-      id: 'test-zaaltje-1', type: 'zaaltje', date: '2026-07-19',
+      id: 'test-zaaltje-1', type: 'zaaltje', date: seedDate(4),
       location: 'Sporthal de Vrijbuiter, Almere',
       duration: 60, calories: 500,
       zaaltje: { ownPlay: 'goed', practiced: 'dribbelen', wentWell: 'passing', canImprove: 'afwerking' },

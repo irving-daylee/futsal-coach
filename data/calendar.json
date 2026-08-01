@@ -1,0 +1,104 @@
+{
+  "lastUpdated": "2026-08-01T08:14:34.284Z",
+  "events": [
+    {
+      "id": "cal_za1nrf",
+      "title": "#training VVIJ Futsal + onderlinge partij",
+      "date": "2026-07-27",
+      "time": "20:00",
+      "endTime": "21:30",
+      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
+      "description": null,
+      "source": "icloud",
+      "type": "training"
+    },
+    {
+      "id": "cal_lng4m7",
+      "title": "#preseason VVIJV Futsal - tegenstander",
+      "date": "2026-08-07",
+      "time": "20:00",
+      "endTime": "21:30",
+      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
+      "description": null,
+      "source": "icloud",
+      "type": "preseason"
+    },
+    {
+      "id": "cal_58k007",
+      "title": "#preseason VVIJV Futsal - Zvv Urk",
+      "date": "2026-08-14",
+      "time": "20:00",
+      "endTime": "21:30",
+      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
+      "description": null,
+      "source": "icloud",
+      "type": "preseason"
+    },
+    {
+      "id": "cal_dsw5cz",
+      "title": "#preseason VVIJV Futsal - Watergoor",
+      "date": "2026-08-21",
+      "time": "20:00",
+      "endTime": "21:30",
+      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
+      "description": null,
+      "source": "icloud",
+      "type": "preseason"
+    },
+    {
+      "id": "cal_q5qqow",
+      "title": "#preseason VVIJV Futsal - Veensche Boys",
+      "date": "2026-08-24",
+      "time": "20:00",
+      "endTime": "21:30",
+      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
+      "description": null,
+      "source": "icloud",
+      "type": "preseason"
+    },
+    {
+      "id": "cal_cufc1o",
+      "title": "#preseason VVIJV Futsal - Jugador",
+      "date": "2026-08-28",
+      "time": "20:00",
+      "endTime": "21:30",
+      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
+      "description": null,
+      "source": "icloud",
+      "type": "preseason"
+    },
+    {
+      "id": "cal_m060bg",
+      "title": "#training VVIJ Futsal",
+      "date": "2026-09-02",
+      "time": "20:00",
+      "endTime": "21:30",
+      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
+      "description": null,
+      "source": "icloud",
+      "type": "training"
+    },
+    {
+      "id": "cal_yz97d7",
+      "title": "Adelaars zvv 1-IJsselmeervogels 1",
+      "date": "2026-09-04",
+      "time": "20:10",
+      "endTime": "22:10",
+      "location": "Lunet, de Amersfoortsestraatweg 16 1411HD NAARDEN",
+      "description": "Mannen Futsal beker 1e ronde Groep 1 A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_bsrrcp",
+      "title": "#training VVIJ Futsal",
+      "date": "2026-09-16",
+      "time": "20:00",
+      "endTime": "21:30",
+      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
+      "description": null,
+      "source": "icloud",
+      "type": "training"
+    }
+  ]
+}
