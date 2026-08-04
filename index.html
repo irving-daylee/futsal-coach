@@ -597,6 +597,12 @@ h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
 .cal-date-month { font-size: 0.6rem; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
 .cal-date-weekday { font-size: 0.58rem; color: var(--text-muted); }
 .cal-info { flex: 1; min-width: 0; }
+.cal-remove {
+  flex-shrink: 0; width: 28px; height: 28px; margin-top: 2px;
+  border: none; background: none; color: var(--text-muted);
+  font-size: 1.2rem; line-height: 1; cursor: pointer; border-radius: 50%;
+}
+.cal-remove:active { background: var(--border); }
 .cal-title { font-size: 0.82rem; font-weight: 600; margin-bottom: 2px; }
 .cal-meta { font-size: 0.7rem; color: var(--text-muted); }
 .cal-type {
@@ -696,7 +702,7 @@ h1, h2, h3, h4, h5 { font-family: 'Inter', sans-serif; }
    DATA LAYER
    ============================================================ */
 
-const APP_VERSION = '1.5.0';
+const APP_VERSION = '1.6.0';
 const STORAGE_KEY = 'futsalCoach_v1';
 const DATA_VERSION = 1;
 const PIN_HASH = 'c5f9eb390a108b4859979e6b4356f30d03f48d8d836596fc8b09ab8307ef03f0';
@@ -732,6 +738,7 @@ function defaultData() {
     },
     activities: [],
     customCalEvents: [],
+    hiddenCalEvents: [],
     historicalSeasons: JSON.parse(JSON.stringify(HISTORICAL_SEASONS)),
     goals: [],
     settings: { currentSeason: '2026/27' },
@@ -758,6 +765,7 @@ function loadData() {
       if (!d.nextGoalId) d.nextGoalId = (d.goals || []).length + 1;
       if (!d.goals) d.goals = [];
       if (!d.customCalEvents) d.customCalEvents = [];
+      if (!d.hiddenCalEvents) d.hiddenCalEvents = [];
       d.historicalSeasons = JSON.parse(JSON.stringify(HISTORICAL_SEASONS));
       migrateData(d);
       return d;
@@ -773,7 +781,7 @@ function saveData() {
 let DB = loadData();
 
 let calendarEvents = [];
-function loadCalendar() {
+function loadCalendar(after) {
   fetch('data/calendar.json')
     .then(r => r.ok ? r.json() : { events: [] })
     .then(d => {
@@ -788,11 +796,13 @@ function loadCalendar() {
         source: 'auto', type: 'training'
       }));
       const custom = (DB.customCalEvents || []).filter(e => e.date >= todayStr);
-      calendarEvents = scraped.concat(autoTrainings).concat(custom).sort((a, b) => {
+      const hidden = new Set(DB.hiddenCalEvents || []);
+      calendarEvents = scraped.concat(autoTrainings).concat(custom).filter(e => !hidden.has(e.id)).sort((a, b) => {
         if (a.date !== b.date) return a.date.localeCompare(b.date);
         return (a.time || '').localeCompare(b.time || '');
       });
       renderDashboard();
+      if (after) after();
     })
     .catch(() => {});
 }
@@ -1280,6 +1290,7 @@ function renderCalEvent(ev, d, isPast, displayTitle, inModal) {
       <div class="cal-meta">${ev.time || ''}${ev.endTime ? ' – ' + ev.endTime : ''}${ev.location ? ' &middot; ' + ev.location.split(',')[0] : ''}</div>
       ${!isPast ? `<button class="cal-btn" onclick="${inModal ? 'closeModal();' : ''}prefillFromCalendar('${ev.id}')">Evaluatie invullen</button>` : ''}
     </div>
+    ${!isPast ? `<button class="cal-remove" title="Verwijderen" onclick="removeCalEvent('${ev.id}', ${inModal ? 'true' : 'false'})">&times;</button>` : ''}
   </div>`;
 }
 
@@ -1337,6 +1348,34 @@ function deleteCustomCalEvent(id) {
   DB.customCalEvents = (DB.customCalEvents || []).filter(e => e.id !== id);
   saveData();
   loadCalendar();
+}
+
+// Gescrapete en automatisch gegenereerde events kunnen we niet echt verwijderen —
+// die komen bij de volgende sync terug. Daarom een lijst met verborgen id's.
+function removeCalEvent(id, inModal) {
+  const custom = (DB.customCalEvents || []).find(e => e.id === id);
+  if (custom) {
+    DB.customCalEvents = DB.customCalEvents.filter(e => e.id !== id);
+  } else {
+    if (!DB.hiddenCalEvents) DB.hiddenCalEvents = [];
+    if (!DB.hiddenCalEvents.includes(id)) DB.hiddenCalEvents.push(id);
+  }
+  saveData();
+  loadCalendar(inModal ? showAllCalendarEvents : null);
+  lastCalRemoval = { id, custom, inModal };
+  showToast('Activiteit verwijderd', () => undoCalRemoval());
+}
+
+// showToast serialiseert de undo-functie, dus die kan niet uit een closure lezen.
+let lastCalRemoval = null;
+function undoCalRemoval() {
+  if (!lastCalRemoval) return;
+  const { id, custom, inModal } = lastCalRemoval;
+  if (custom) DB.customCalEvents.push(custom);
+  else DB.hiddenCalEvents = (DB.hiddenCalEvents || []).filter(x => x !== id);
+  lastCalRemoval = null;
+  saveData();
+  loadCalendar(inModal ? showAllCalendarEvents : null);
 }
 
 function showAllCalendarEvents() {
@@ -1649,7 +1688,10 @@ function renderEvaluatie() {
     h += `</div>`;
   }
 
-  h += `<button class="btn btn-primary btn-block" style="margin-top:20px" onclick="saveActivity()">Opslaan</button>`;
+  h += `<button class="btn btn-primary btn-block" style="margin-top:20px" onclick="saveActivity()">${fs.editId ? 'Wijzigingen opslaan' : 'Opslaan'}</button>`;
+  if (fs.editId) {
+    h += `<button class="btn btn-outline btn-block btn-sm" style="margin-top:8px" onclick="cancelEdit()">Annuleren</button>`;
+  }
 
   c.innerHTML = h;
 }
@@ -1669,7 +1711,7 @@ function saveActivity() {
   }
   const isZaaltje = fs.type === 'zaaltje';
   const activity = {
-    id: 'a' + DB.nextActivityId++,
+    id: fs.editId || ('a' + DB.nextActivityId++),
     type: fs.type,
     date: fs.date,
     timeSlot: isZaaltje ? '' : (fs.timeSlot === 'overig' ? fs.customTime : fs.timeSlot),
@@ -1715,11 +1757,13 @@ function saveActivity() {
       canImprove: ((fs.zaaltje || {}).canImprove || '').trim()
     } : null
   };
-  DB.activities.push(activity);
+  const idx = fs.editId ? DB.activities.findIndex(a => a.id === fs.editId) : -1;
+  if (idx >= 0) DB.activities[idx] = activity;
+  else DB.activities.push(activity);
   DB.activities.sort((a, b) => a.date.localeCompare(b.date));
   saveData();
   formState = null;
-  showToast('Evaluatie opgeslagen!');
+  showToast(idx >= 0 ? 'Evaluatie bijgewerkt' : 'Evaluatie opgeslagen!');
   navigateTo('pageHistorie');
 }
 
@@ -1808,6 +1852,7 @@ function showActivityDetail(id) {
     if (a.zaaltje.wentWell) h += `<p style="font-size:0.78rem;margin-bottom:4px"><strong>Ging goed:</strong></p><p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">${a.zaaltje.wentWell}</p>`;
     if (a.zaaltje.canImprove) h += `<p style="font-size:0.78rem;margin-bottom:4px"><strong>Kan beter:</strong></p><p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">${a.zaaltje.canImprove}</p>`;
     h += `<div style="display:flex;gap:8px;margin-top:20px">
+      <button class="btn btn-outline" style="flex:1" onclick="editActivity('${a.id}')">Bewerken</button>
       <button class="btn btn-outline" style="flex:1" onclick="repeatActivity('${a.id}')">Herhaal</button>
       <button class="btn btn-primary" style="flex:1" onclick="closeModal()">Sluiten</button>
     </div>
@@ -1881,6 +1926,7 @@ function showActivityDetail(id) {
   }
 
   h += `<div style="display:flex;gap:8px;margin-top:20px">
+    <button class="btn btn-outline" style="flex:1" onclick="editActivity('${a.id}')">Bewerken</button>
     <button class="btn btn-outline" style="flex:1" onclick="repeatActivity('${a.id}')">Herhaal</button>
     ${hasPerf ? `<button class="btn btn-outline" style="flex:1" onclick="showCompareSelector('${a.id}')">Vergelijk</button>` : ''}
     <button class="btn btn-primary" style="flex:1" onclick="closeModal()">Sluiten</button>
@@ -1888,6 +1934,51 @@ function showActivityDetail(id) {
   <button class="btn btn-outline btn-block btn-sm" style="margin-top:8px;color:var(--negative);border-color:var(--negative)" onclick="deleteActivity('${a.id}')">Verwijderen</button>`;
 
   openModal(h);
+}
+
+function editActivity(id) {
+  const a = DB.activities.find(x => x.id === id);
+  if (!a) return;
+  initFormState(a.type);
+  const fs = formState;
+  fs.editId = a.id;
+  fs.date = a.date;
+  fs.location = a.location || '';
+  fs.duration = a.duration || '';
+  fs.calories = a.calories || '';
+  if (a.timeSlot) {
+    fs.timeSlot = ['20:00-21:30','19:30-21:00'].includes(a.timeSlot) ? a.timeSlot : 'overig';
+    if (fs.timeSlot === 'overig') fs.customTime = a.timeSlot;
+  }
+  if (a.type === 'match') {
+    fs.team = a.team; fs.bond = a.bond; fs.matchType = a.matchType;
+    fs.opponent = a.opponent || '';
+    fs.playMinutes = a.playMinutes || '';
+  }
+  if (a.type === 'training') fs.hasPartijspel = !!a.hasPartijspel;
+  ['dribbleAttempts','dribbleSuccess','shots','shotsOnTarget','bigChances','goals','assists'].forEach(k => {
+    fs[k] = a[k] || '';
+  });
+  fs.feeling = a.feeling || 'neutraal';
+  fs.notes = a.notes || '';
+  const p = a.preparation || {};
+  fs.preparation = {
+    tiredBody: !!p.tiredBody, poorSleep: !!p.poorSleep, lowFitness: !!p.lowFitness,
+    lowConfidence: !!p.lowConfidence, lowFocus: !!p.lowFocus, dontKnow: !!p.dontKnow,
+    nothingSpecial: !!p.nothingSpecial,
+    weight: p.weight || '', waterLiters: p.waterLiters || '', other: p.other || ''
+  };
+  fs.mainPosition = a.mainPosition || 'flank-links';
+  fs.positionReason = a.positionReason || '';
+  fs.focusPoints = (a.focusPoints || []).map(fp => ({ text: fp.text, result: fp.result || '' }));
+  if (a.zaaltje) fs.zaaltje = Object.assign({}, a.zaaltje);
+  closeModal();
+  navigateTo('pageEvaluatie');
+}
+
+function cancelEdit() {
+  formState = null;
+  navigateTo('pageHistorie');
 }
 
 function repeatActivity(id) {

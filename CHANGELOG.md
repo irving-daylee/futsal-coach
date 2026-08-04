@@ -7,6 +7,12 @@ Volgt [Semantic Versioning](https://semver.org/lang/nl/): `MAJOR.MINOR.PATCH`.
 - **MINOR** — nieuwe feature of significant gedragsverandering
 - **PATCH** — bugfix, kleine aanpassing, tekst/label wijziging
 
+## [1.6.0] - 2026-08-04
+
+### Added
+- Ingediende evaluaties achteraf bewerken via "Bewerken" in het detailscherm
+- Activiteiten verwijderen uit Aankomende activiteiten met de × — ook die uit de kalenderfeeds, die blijven weg na een sync. Ongedaan maken kan via de toast
+
 ## [1.5.0] - 2026-08-01
 
 ### Added
