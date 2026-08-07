@@ -55,6 +55,24 @@ Bij het openen vraagt de app om een 4-cijferige PIN, opgeslagen als SHA-256 hash
 - **Verwijderen**: eigen ingeplande activiteiten (`DB.customCalEvents`) worden echt verwijderd. Gescrapete en auto-gegenereerde events kunnen dat niet — die komen bij de volgende sync terug — dus hun id gaat in `DB.hiddenCalEvents` en wordt eruit gefilterd bij het laden.
 - **`showToast()` serialiseert de undo-functie naar een string.** Die kan dus niet uit een closure lezen; zet wat je nodig hebt in een module-scope variabele (zie `lastCalRemoval` / `undoCalRemoval`).
 
+## Werkafspraken met Irving
+
+Deze gelden voor al het werk aan deze app, niet alleen voor één taak.
+
+- **Nederlands, technisch.** Irving bouwt deze app zelf en leest mee in de code — leg dingen uit op dat niveau, geen versimpeling.
+- **Verifieer vóór je pusht.** Hij is eerder (terecht) boos geworden toen er meerdere keren achter elkaar met bugs werd gepusht. "Geen console errors op een verse load" bewijst niets: draai `npm test` én oefen de gewijzigde flow echt uit in de browser. Reproduceer bij een bugfix eerst de bug, fix dan, bevestig met dezelfde test.
+- **Commit en push zelf** zodra het werk af en getest is, met versie + changelog erbij. Niet vragen of hij het even doet.
+- **Houd het lean.** Geen push-notificaties, geen features die tijdens een wedstrijd of training onderhoud vragen. Dit is een app voor één persoon; complexiteit die alleen bij meerdere gebruikers loont hoort er niet in.
+- **Coaching blijft concreet en feitelijk.** Nooit zweverig, nooit vaag. Eerlijk over tegenvallende cijfers mag hier wél — deze app is voor Irving zelf en dat is juist het doel. (De regel dat individuele spelers niet negatief benoemd worden geldt in de team-app joga-bonito, niet hier.)
+
+### Privacy
+
+De repo is **publiek**. Alles wat je hier commit staat online. Persoonlijke meetgegevens (gewicht, water, gevoel, blessures) horen uitsluitend in localStorage op het toestel — nooit in een bestand in de repo, nooit in een workflow-output, nooit in `data/`.
+
+Let daar ook op bij de agenda-scraper: die haalt Irvings persoonlijke iCloud-feed op en `data/calendar.json` wordt gecommit. Het hashtag-filter is wat zijn privé-afspraken uit die publieke file houdt — verzwak dat niet.
+
+⚠️ `DB.profile` in `defaultData()` bevat nu een geboortedatum in de broncode. Die staat dus publiek. Bespreek met Irving of dat weg kan (bijv. alleen leeftijd, of pas invullen in de app zelf) voordat je er andere persoonlijke velden bij zet.
+
 ## Brand guide
 
 | Element | Waarde |
@@ -116,10 +134,8 @@ Dashboard | Evaluatie | Historie | Stats | Coaching | Profiel
 
 - Geen comments in code tenzij niet-obvious waarom. De agenda-valkuilen hierboven zijn wél toegelicht in de code, want ze zijn niet af te leiden uit wat er staat.
 - Geen externe dependencies in `index.html` behalve Google Fonts CDN (Inter). De scraper draait op de ingebouwde `fetch`, de smoke test op jsdom (devDependency, draait alleen in CI). `package.json` heeft `"type": "module"` — scripts gebruiken `import`, geen `require()`.
-- Commit en push zelf als het werk af en getest is; niet aan Irving vragen of hij het even doet.
 - Test altijd op mobile (375x812) — primair een telefoon-app.
 - localStorage limiet (~5-10MB) — foto's eten dit op (profielfoto als base64 JPEG 200x200).
-- Coaching tips altijd concreet en feitelijk, nooit vaag/zweverig.
 - Training dot is rood (IJV), zaaltje dot is grijs, wedstrijd dot volgt teamkleur.
 - Gewicht/water inputs: `type="text" inputmode="decimal"`, komma wordt omgezet naar punt.
 - Duur/calorieën zijn placeholders (niet pre-filled), zaaltje datum prefilt op zondag, training op maandag.
