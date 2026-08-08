@@ -1,17 +1,6 @@
 {
-  "lastUpdated": "2026-08-06T07:41:48.116Z",
+  "lastUpdated": "2026-08-08T05:43:41.594Z",
   "events": [
-    {
-      "id": "cal_lng4m7",
-      "title": "#preseason VVIJV Futsal - tegenstander",
-      "date": "2026-08-07",
-      "time": "20:00",
-      "endTime": "21:30",
-      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
-      "description": null,
-      "source": "icloud",
-      "type": "preseason"
-    },
     {
       "id": "cal_58k007",
       "title": "#preseason VVIJV Futsal - Zvv Urk",
@@ -79,6 +68,17 @@
       "type": "knvb"
     },
     {
+      "id": "cal_apo3tm",
+      "title": "IJsselmeervogels 1-UVV 1",
+      "date": "2026-09-07",
+      "time": "20:00",
+      "endTime": "22:00",
+      "location": "Toekomst, de Westdijk 14 3752AE BUNSCHOTEN-SPAKENBURG",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
       "id": "cal_bsrrcp",
       "title": "#training VVIJ Futsal",
       "date": "2026-09-16",
@@ -88,6 +88,160 @@
       "description": null,
       "source": "icloud",
       "type": "training"
+    },
+    {
+      "id": "cal_um1xug",
+      "title": "DWOW 1-IJsselmeervogels 1",
+      "date": "2026-09-18",
+      "time": "20:40",
+      "endTime": "22:40",
+      "location": "Campus de Terp De Campus 2 1771PB WIERINGERWERF",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_gi8qs4",
+      "title": "IJsselmeervogels 1-HV Hoorn 2",
+      "date": "2026-09-25",
+      "time": "20:00",
+      "endTime": "22:00",
+      "location": "Toekomst, de Westdijk 14 3752AE BUNSCHOTEN-SPAKENBURG",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_ipjz55",
+      "title": "Olympia Haarlem 1-IJsselmeervogels 1",
+      "date": "2026-10-02",
+      "time": "21:05",
+      "endTime": "23:05",
+      "location": "Turnhouthal, van Henk van Turnhoutpad 1 2034JL HAARLEM",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_vag0aw",
+      "title": "IJsselmeervogels 1-VVS 46 1",
+      "date": "2026-10-09",
+      "time": "20:00",
+      "endTime": "22:00",
+      "location": "Toekomst, de Westdijk 14 3752AE BUNSCHOTEN-SPAKENBURG",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_c6rvc7",
+      "title": "Onside Amsterdam 1-IJsselmeervogels 1",
+      "date": "2026-10-30",
+      "time": "21:05",
+      "endTime": "23:05",
+      "location": "Caland Sportcentrum Eliza van Calcarstraat 2 1068RR AMSTERDAM",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_s28t9c",
+      "title": "IJsselmeervogels 1-FCZSW/FC ZAANSTREEK 1",
+      "date": "2026-11-06",
+      "time": "20:00",
+      "endTime": "22:00",
+      "location": "Toekomst, de Westdijk 14 3752AE BUNSCHOTEN-SPAKENBURG",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_1euc1",
+      "title": "ZV Vrone 1-IJsselmeervogels 1",
+      "date": "2026-11-13",
+      "time": "20:10",
+      "endTime": "22:10",
+      "location": "Oostwal, de Beverplein 2 1834GS SINT PANCRAS",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_7rrjh7",
+      "title": "IJsselmeervogels 1-Scagha`66",
+      "date": "2026-11-20",
+      "time": "20:00",
+      "endTime": "22:00",
+      "location": "Toekomst, de Westdijk 14 3752AE BUNSCHOTEN-SPAKENBURG",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_1n6ne8",
+      "title": "zvv DOS'58 1-IJsselmeervogels 1",
+      "date": "2026-12-04",
+      "time": "21:05",
+      "endTime": "23:05",
+      "location": "OVVO Hal Amsterdamsestraatweg 2 3604AA MAARSSEN",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_d0o1sw",
+      "title": "IJsselmeervogels 1-Annour/MADIBA 1",
+      "date": "2026-12-11",
+      "time": "20:00",
+      "endTime": "22:00",
+      "location": "Toekomst, de Westdijk 14 3752AE BUNSCHOTEN-SPAKENBURG",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_plwg62",
+      "title": "UVV 1-IJsselmeervogels 1",
+      "date": "2027-01-11",
+      "time": "21:00",
+      "endTime": "23:00",
+      "location": "Paperclip, de Parkzichtlaan 203 3544MN UTRECHT",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_ektj52",
+      "title": "IJsselmeervogels 1-DWOW 1",
+      "date": "2027-01-22",
+      "time": "20:00",
+      "endTime": "22:00",
+      "location": "Toekomst, de Westdijk 14 3752AE BUNSCHOTEN-SPAKENBURG",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_4jgujb",
+      "title": "HV Hoorn 2-IJsselmeervogels 1",
+      "date": "2027-01-29",
+      "time": "20:10",
+      "endTime": "22:10",
+      "location": "Vredehof Vredehofstraat 5 1624XG HOORN NH",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_sm2fds",
+      "title": "IJsselmeervogels 1-Olympia Haarlem 1",
+      "date": "2027-02-05",
+      "time": "20:00",
+      "endTime": "22:00",
+      "location": "Toekomst, de Westdijk 14 3752AE BUNSCHOTEN-SPAKENBURG",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
     }
   ]
 }
