@@ -7,6 +7,11 @@ Volgt [Semantic Versioning](https://semver.org/lang/nl/): `MAJOR.MINOR.PATCH`.
 - **MINOR** — nieuwe feature of significant gedragsverandering
 - **PATCH** — bugfix, kleine aanpassing, tekst/label wijziging
 
+## [1.6.1] - 2026-08-08
+
+### Fixed
+- De activiteiten-streak op het dashboard rekent nu met een week die op maandag begint. Een activiteit op zondag (zoals het zaaltje) telde eerder mee voor de week erna, waardoor de streak kon onderbreken of te hoog uitvallen
+
 ## [1.6.0] - 2026-08-04
 
 ### Added
