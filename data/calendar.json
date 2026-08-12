@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-08-11T05:54:29.973Z",
+  "lastUpdated": "2026-08-12T06:16:27.950Z",
   "events": [
     {
       "id": "cal_58k007",
       "title": "#preseason VVIJV Futsal - Zvv Urk",
       "date": "2026-08-14",
-      "time": "20:00",
-      "endTime": "21:30",
-      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
+      "time": "20:30",
+      "endTime": "22:30",
+      "location": "Vlechttuinen, Sporthal, Vlechttuinen 8, 8322 BA Urk, Netherlands",
       "description": null,
       "source": "icloud",
       "type": "preseason"
@@ -239,6 +239,17 @@
       "time": "20:00",
       "endTime": "22:00",
       "location": "Toekomst, de Westdijk 14 3752AE BUNSCHOTEN-SPAKENBURG",
+      "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_ev69m",
+      "title": "VVS 46 1-IJsselmeervogels 1",
+      "date": "2027-02-12",
+      "time": "20:00",
+      "endTime": "22:00",
+      "location": "Oranjehal Spanbroekerweg 120 A 1715GT SPANBROEK",
       "description": "Topklasse A",
       "source": "voetbal",
       "type": "knvb"
