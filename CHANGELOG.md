@@ -7,6 +7,11 @@ Volgt [Semantic Versioning](https://semver.org/lang/nl/): `MAJOR.MINOR.PATCH`.
 - **MINOR** — nieuwe feature of significant gedragsverandering
 - **PATCH** — bugfix, kleine aanpassing, tekst/label wijziging
 
+## [1.6.2] - 2026-08-21
+
+### Changed
+- Wedstrijden met "Ijsselmeervogels" of "Joga Bonito" in de titel komen nu ook uit de iCloud-agenda, ook zonder hashtag. Zet je een wedstrijd vanuit voetbal.nl in je agenda, dan verschijnt hij vanzelf in de app
+
 ## [1.6.1] - 2026-08-21
 
 ### Fixed

@@ -15,7 +15,12 @@ const SRZA_URL = process.env.SRZA_URL ||
 const VOETBAL_URL = process.env.VOETBAL_URL ||
   'https://data.sportlink.com/ical-person?token=ul836m7c1phnj7fe0ea6d39ms3';
 
-const KEYWORDS_ICLOUD = ['#zaaltje', '#training', '#preseason', 'srza:', 'knvb:', '#zakiballi'];
+// Irving tagt zijn eigen afspraken met een hashtag of een BOND:-prefix. Wedstrijden
+// die vanuit voetbal.nl in zijn agenda belanden hebben dat niet — die heten
+// "Adelaars zvv 1-IJsselmeervogels 1" — vandaar de clubnamen als extra vangnet.
+// Alles wat hier niet op matcht blijft uit de app: de rest van deze feed is privé.
+const KEYWORDS_ICLOUD = ['#zaaltje', '#training', '#preseason', 'srza:', 'knvb:', '#zakiballi',
+  'ijsselmeervogels', 'vvijv', 'joga bonito'];
 
 const OUT = path.join(__dirname, '..', 'data', 'calendar.json');
 
@@ -65,6 +70,7 @@ function classifyEvent(summary) {
   if (s.startsWith('srza:') || s.includes('srza:')) return 'srza';
   if (s.startsWith('knvb:') || s.includes('knvb:')) return 'knvb';
   if (s.includes('joga bonito')) return 'srza';
+  if (s.includes('ijsselmeervogels') || s.includes('vvijv')) return 'knvb';
   return 'overig';
 }
 
