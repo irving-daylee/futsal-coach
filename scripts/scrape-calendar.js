@@ -82,18 +82,36 @@ function eventId(ev, source) {
   return 'cal_' + Math.abs(hash).toString(36);
 }
 
+// Bij een storing geven we null terug, niet []. Het verschil is wezenlijk:
+// [] betekent "die agenda is leeg", null betekent "we weten het niet". Bij null
+// houden we de events van die bron uit de vorige calendar.json aan, anders
+// verdwijnen wedstrijden uit de app zodra een feed een keer uit de lucht is.
 async function fetchFeed(url, label) {
-  if (!url) return [];
+  if (!url) return null;
   console.log(`Fetching ${label}: ${url.slice(0, 80)}...`);
-  const res = await fetch(url);
+  let res;
+  try {
+    res = await fetch(url);
+  } catch (e) {
+    console.error(`  ${label} onbereikbaar: ${e.message}`);
+    return null;
+  }
   if (!res.ok) {
     console.error(`  ${label} failed: ${res.status} ${res.statusText}`);
-    return [];
+    return null;
   }
   const text = await res.text();
   const events = parseICS(text);
   console.log(`  ${label}: ${events.length} events parsed`);
   return events;
+}
+
+function readPrevious() {
+  try {
+    return JSON.parse(fs.readFileSync(OUT, 'utf8')).events || [];
+  } catch (e) {
+    return [];
+  }
 }
 
 async function main() {
@@ -112,7 +130,18 @@ async function main() {
   const output = [];
   const seen = new Set();
 
-  for (const ev of icloudRaw) {
+  const previous = readPrevious();
+  const stale = [];
+  const keepPrevious = (raw, source, label) => {
+    if (raw !== null) return raw;
+    const kept = previous.filter(e => e.source === source && e.date >= cutoffStr && e.date <= maxStr);
+    stale.push(`${label} (${kept.length} events uit de vorige run behouden)`);
+    output.push(...kept);
+    kept.forEach(e => seen.add(e.id));
+    return [];
+  };
+
+  for (const ev of keepPrevious(icloudRaw, 'icloud', 'iCloud')) {
     if (!isFutsalEvent(ev.summary)) continue;
     if (ev.dtstart.date < cutoffStr || ev.dtstart.date > maxStr) continue;
     const id = eventId(ev, 'icloud');
@@ -131,7 +160,7 @@ async function main() {
     });
   }
 
-  for (const ev of srzaRaw) {
+  for (const ev of keepPrevious(srzaRaw, 'srza', 'SRZA')) {
     if (!ev.summary.toLowerCase().includes('joga bonito')) continue;
     if (ev.dtstart.date < cutoffStr || ev.dtstart.date > maxStr) continue;
     const dedup = `${ev.dtstart.date}|${ev.dtstart.time}`;
@@ -151,7 +180,7 @@ async function main() {
     });
   }
 
-  for (const ev of voetbalRaw) {
+  for (const ev of keepPrevious(voetbalRaw, 'voetbal', 'Voetbal.nl')) {
     if (ev.dtstart.date < cutoffStr || ev.dtstart.date > maxStr) continue;
     const id = eventId(ev, 'voetbal');
     if (seen.has(id)) continue;
@@ -175,8 +204,14 @@ async function main() {
   });
 
   const data = { lastUpdated: new Date().toISOString(), events: output };
+  if (stale.length) data.staleFeeds = stale;
   fs.writeFileSync(OUT, JSON.stringify(data, null, 2) + '\n');
   console.log(`\nWrote ${output.length} events to data/calendar.json`);
+
+  if (stale.length) {
+    console.warn(`\nWaarschuwing: ${stale.length} feed(s) niet bereikt:`);
+    stale.forEach(s => console.warn(`  - ${s}`));
+  }
 
   if (!output.length) {
     console.warn('Warning: 0 futsal events found — check feed URLs and filters');

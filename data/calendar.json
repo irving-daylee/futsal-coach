@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-08-21T05:35:01.274Z",
+  "lastUpdated": "2026-08-21T12:06:39.243Z",
   "events": [
     {
       "id": "cal_58k007",
@@ -66,6 +66,17 @@
       "description": "Reminder",
       "source": "srza",
       "type": "srza"
+    },
+    {
+      "id": "cal_yz97d7",
+      "title": "Adelaars zvv 1-IJsselmeervogels 1",
+      "date": "2026-09-04",
+      "time": "20:10",
+      "endTime": "22:10",
+      "location": "Lunet, de Amersfoortsestraatweg 16 1411HD NAARDEN",
+      "description": "Mannen Futsal beker 1e ronde Groep 1 A",
+      "source": "voetbal",
+      "type": "knvb"
     },
     {
       "id": "cal_n6y76g",
@@ -221,5 +232,8 @@
       "source": "srza",
       "type": "srza"
     }
+  ],
+  "staleFeeds": [
+    "Voetbal.nl (1 events uit de vorige run behouden)"
   ]
 }

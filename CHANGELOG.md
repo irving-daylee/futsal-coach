@@ -7,6 +7,11 @@ Volgt [Semantic Versioning](https://semver.org/lang/nl/): `MAJOR.MINOR.PATCH`.
 - **MINOR** — nieuwe feature of significant gedragsverandering
 - **PATCH** — bugfix, kleine aanpassing, tekst/label wijziging
 
+## [1.6.1] - 2026-08-21
+
+### Fixed
+- Wedstrijden verdwijnen niet meer uit de agenda als een kalenderfeed even uit de lucht is. De voetbal.nl-feed geeft sinds half augustus een serverfout; daardoor was de KNVB-wedstrijd van 4 september uit de lijst weggevallen. Bij een storing houdt de scraper nu de events van de vorige run aan
+
 ## [1.6.0] - 2026-08-04
 
 ### Added
