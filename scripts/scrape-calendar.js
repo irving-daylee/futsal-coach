@@ -24,6 +24,11 @@ const KEYWORDS_ICLOUD = ['#zaaltje', '#training', '#preseason', 'srza:', 'knvb:'
 
 const OUT = path.join(__dirname, '..', 'data', 'calendar.json');
 
+// De sportlink-feed geeft sinds augustus 2026 HTTP 500. Dit is het handmatig
+// geëxporteerde programma als achtervang; de live feed wint zodra die weer werkt.
+// Bij een nieuw seizoen opnieuw exporteren, of weggooien als de feed het weer doet.
+const VOETBAL_FALLBACK = path.join(__dirname, '..', 'data', 'voetbal-fallback.ics');
+
 function parseICS(text) {
   const events = [];
   const blocks = text.split('BEGIN:VEVENT');
@@ -45,7 +50,7 @@ function parseICS(text) {
 }
 
 function unfoldLines(text) {
-  return text.replace(/\r\n /g, '').replace(/\r\n\t/g, '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  return text.replace(/\r?\n[ \t]/g, '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
 }
 
 function parseDTValue(line) {
@@ -125,19 +130,28 @@ async function main() {
   cutoff.setDate(cutoff.getDate() - 7);
   const cutoffStr = cutoff.toISOString().split('T')[0];
 
+  // Twaalf maanden: een futsalseizoen loopt tot eind april, dus met zes maanden
+  // viel de tweede seizoenshelft in het najaar buiten beeld.
   const maxDate = new Date();
-  maxDate.setMonth(maxDate.getMonth() + 6);
+  maxDate.setMonth(maxDate.getMonth() + 12);
   const maxStr = maxDate.toISOString().split('T')[0];
 
   const icloudRaw = await fetchFeed(ICLOUD_URL, 'iCloud');
   const srzaRaw = await fetchFeed(SRZA_URL, 'SRZA');
-  const voetbalRaw = await fetchFeed(VOETBAL_URL, 'Voetbal.nl');
+  let usedFallback = false;
+  let voetbalRaw = await fetchFeed(VOETBAL_URL, 'Voetbal.nl');
+  if (voetbalRaw === null && fs.existsSync(VOETBAL_FALLBACK)) {
+    voetbalRaw = parseICS(fs.readFileSync(VOETBAL_FALLBACK, 'utf8'));
+    console.log(`  Voetbal.nl: ${voetbalRaw.length} events uit data/voetbal-fallback.ics`);
+    usedFallback = true;
+  }
 
   const output = [];
   const seen = new Set();
 
   const previous = readPrevious();
   const stale = [];
+  if (usedFallback) stale.push('Voetbal.nl (programma uit data/voetbal-fallback.ics)');
   const keepPrevious = (raw, source, label) => {
     if (raw !== null) return raw;
     const kept = previous.filter(e => e.source === source && e.date >= cutoffStr && e.date <= maxStr);

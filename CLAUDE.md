@@ -53,6 +53,7 @@ Bij het openen vraagt de app om een 4-cijferige PIN, opgeslagen als SHA-256 hash
 - **iCloud wordt gefilterd op hashtags** (`#training`, `#zaaltje`, `#preseason`, `#zakiballi`, `srza:`, `knvb:`) — anders komt Irvings hele privé-agenda in de app.
 - **`cleanCalTitle()`** strikt de hashtag en schrijft "VVIJV Futsal" / "VVIJ Futsal" om naar "Ijsselmeervogels". Irving wil die naam nergens anders zien.
 - **Verwijderen**: eigen ingeplande activiteiten (`DB.customCalEvents`) worden echt verwijderd. Gescrapete en auto-gegenereerde events kunnen dat niet — die komen bij de volgende sync terug — dus hun id gaat in `DB.hiddenCalEvents` en wordt eruit gefilterd bij het laden.
+- **De voetbal.nl-feed ligt eruit** (HTTP 500 sinds augustus 2026; het token is geldig — een ongeldig token geeft 401). Zolang dat duurt komt het KNVB-programma uit `data/voetbal-fallback.ics`, een handmatige export uit de voetbal.nl-app. De live feed wint zodra die weer antwoordt, dus die achtervang mag blijven staan; bij een nieuw seizoen opnieuw exporteren of weggooien.
 - **Een gefaalde feed wist zijn events niet.** `fetchFeed()` geeft `null` bij een storing (niet `[]`) en dan houdt de scraper de events van die bron uit de vorige `calendar.json` aan, met een `staleFeeds`-melding in het bestand en de log. Zonder dat verdwijnen wedstrijden zodra een feed een dag plat ligt.
 - **`showToast()` serialiseert de undo-functie naar een string.** Die kan dus niet uit een closure lezen; zet wat je nodig hebt in een module-scope variabele (zie `lastCalRemoval` / `undoCalRemoval`).
 

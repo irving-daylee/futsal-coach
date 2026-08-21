@@ -7,6 +7,15 @@ Volgt [Semantic Versioning](https://semver.org/lang/nl/): `MAJOR.MINOR.PATCH`.
 - **MINOR** — nieuwe feature of significant gedragsverandering
 - **PATCH** — bugfix, kleine aanpassing, tekst/label wijziging
 
+## [1.7.0] - 2026-08-21
+
+### Added
+- Het volledige KNVB-programma van IJsselmeervogels staat in de agenda: 22 competitiewedstrijden Topklasse A plus de bekerwedstrijd, tot en met 23 april 2027. Geëxporteerd uit voetbal.nl, want die feed ligt eruit — zodra hij weer werkt neemt de live versie het automatisch over
+
+### Changed
+- De agenda kijkt twaalf maanden vooruit in plaats van zes, zodat de tweede seizoenshelft er in het najaar al in staat
+- "Evaluatie invullen" bij een KNVB-wedstrijd vult nu alleen de tegenstander in ("UVV") in plaats van de hele wedstrijdtitel
+
 ## [1.6.2] - 2026-08-21
 
 ### Changed
