@@ -1,17 +1,6 @@
 {
-  "lastUpdated": "2026-08-21T12:16:21.539Z",
+  "lastUpdated": "2026-08-22T05:29:48.239Z",
   "events": [
-    {
-      "id": "cal_58k007",
-      "title": "#preseason VVIJV Futsal - Zvv Urk",
-      "date": "2026-08-14",
-      "time": "20:30",
-      "endTime": "22:30",
-      "location": "Vlechttuinen, Sporthal, Vlechttuinen 8, 8322 BA Urk, Netherlands",
-      "description": null,
-      "source": "icloud",
-      "type": "preseason"
-    },
     {
       "id": "cal_dsw5cz",
       "title": "#preseason VVIJV Futsal - Watergoor",
@@ -562,8 +551,5 @@
       "source": "srza",
       "type": "srza"
     }
-  ],
-  "staleFeeds": [
-    "Voetbal.nl (programma uit data/voetbal-fallback.ics)"
   ]
 }
