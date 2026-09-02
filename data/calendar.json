@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-01T09:48:53.338Z",
+  "lastUpdated": "2026-09-02T09:21:18.135Z",
   "events": [
     {
       "id": "cal_cufc1o",
@@ -33,17 +33,6 @@
       "description": "Reminder",
       "source": "srza",
       "type": "srza"
-    },
-    {
-      "id": "cal_yz97d7",
-      "title": "Adelaars zvv 1-IJsselmeervogels 1",
-      "date": "2026-09-04",
-      "time": "20:10",
-      "endTime": "22:10",
-      "location": "Lunet, de Amersfoortsestraatweg 16 1411HD NAARDEN",
-      "description": "Mannen Futsal beker 1e ronde Groep 1 A",
-      "source": "voetbal",
-      "type": "knvb"
     },
     {
       "id": "cal_apo3tm",
@@ -264,6 +253,17 @@
       "description": "Topklasse A",
       "source": "voetbal",
       "type": "knvb"
+    },
+    {
+      "id": "cal_28fk40",
+      "title": "SRZA Tijdwaarneming: JOGA BONITO",
+      "date": "2026-12-14",
+      "time": "19:00",
+      "endTime": "23:10",
+      "location": "Sporthal: HAVEN",
+      "description": "Reminder",
+      "source": "srza",
+      "type": "srza"
     },
     {
       "id": "cal_up8eet",
@@ -506,6 +506,17 @@
       "description": "Topklasse A",
       "source": "voetbal",
       "type": "knvb"
+    },
+    {
+      "id": "cal_iyecpj",
+      "title": "SRZA Tijdwaarneming: JOGA BONITO",
+      "date": "2027-05-10",
+      "time": "19:00",
+      "endTime": "23:10",
+      "location": "Sporthal: STAD",
+      "description": "Reminder",
+      "source": "srza",
+      "type": "srza"
     },
     {
       "id": "cal_pp6u63",
