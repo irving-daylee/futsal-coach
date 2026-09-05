@@ -1,17 +1,6 @@
 {
-  "lastUpdated": "2026-09-04T09:23:01.140Z",
+  "lastUpdated": "2026-09-05T08:52:12.654Z",
   "events": [
-    {
-      "id": "cal_cufc1o",
-      "title": "#preseason VVIJV Futsal - Jugador",
-      "date": "2026-08-28",
-      "time": "20:00",
-      "endTime": "21:30",
-      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
-      "description": null,
-      "source": "icloud",
-      "type": "preseason"
-    },
     {
       "id": "cal_m060bg",
       "title": "#training VVIJ Futsal",
