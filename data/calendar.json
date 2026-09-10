@@ -1,17 +1,6 @@
 {
-  "lastUpdated": "2026-09-09T09:27:07.379Z",
+  "lastUpdated": "2026-09-10T09:25:49.494Z",
   "events": [
-    {
-      "id": "cal_m060bg",
-      "title": "#training VVIJ Futsal",
-      "date": "2026-09-02",
-      "time": "19:30",
-      "endTime": "21:00",
-      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
-      "description": null,
-      "source": "icloud",
-      "type": "training"
-    },
     {
       "id": "cal_pj1aa6",
       "title": "JOGA BONITO - LIMAKO",
@@ -35,6 +24,17 @@
       "type": "srza"
     },
     {
+      "id": "cal_bsrrcp",
+      "title": "#training VVIJ Futsal",
+      "date": "2026-09-16",
+      "time": "19:30",
+      "endTime": "21:00",
+      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
+      "description": null,
+      "source": "icloud",
+      "type": "training"
+    },
+    {
       "id": "cal_1ocpab",
       "title": "NOVIA FACTS - JOGA BONITO",
       "date": "2026-09-16",
@@ -44,17 +44,6 @@
       "description": "Reminder",
       "source": "srza",
       "type": "srza"
-    },
-    {
-      "id": "cal_bsrrcp",
-      "title": "#training VVIJ Futsal",
-      "date": "2026-09-16",
-      "time": "20:00",
-      "endTime": "21:30",
-      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
-      "description": null,
-      "source": "icloud",
-      "type": "training"
     },
     {
       "id": "cal_um1xug",
