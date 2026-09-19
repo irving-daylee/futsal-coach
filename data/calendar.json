@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-18T09:28:12.533Z",
+  "lastUpdated": "2026-09-19T09:15:16.677Z",
   "events": [
     {
       "id": "cal_bsrrcp",
@@ -22,17 +22,6 @@
       "description": "Reminder",
       "source": "srza",
       "type": "srza"
-    },
-    {
-      "id": "cal_um1xug",
-      "title": "DWOW 1-IJsselmeervogels 1",
-      "date": "2026-09-18",
-      "time": "20:40",
-      "endTime": "22:40",
-      "location": "Campus de Terp De Campus 2 1771PB WIERINGERWERF",
-      "description": "Topklasse A",
-      "source": "voetbal",
-      "type": "knvb"
     },
     {
       "id": "cal_xjmhm0",
