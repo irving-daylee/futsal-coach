@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-25T10:03:19.943Z",
+  "lastUpdated": "2026-09-26T09:44:28.625Z",
   "events": [
     {
       "id": "cal_xjmhm0",
@@ -11,17 +11,6 @@
       "description": "Reminder",
       "source": "srza",
       "type": "srza"
-    },
-    {
-      "id": "cal_gi8qs4",
-      "title": "IJsselmeervogels 1-HV Hoorn 2",
-      "date": "2026-09-25",
-      "time": "20:00",
-      "endTime": "22:00",
-      "location": "Toekomst, de Westdijk 14 3752AE BUNSCHOTEN-SPAKENBURG",
-      "description": "Topklasse A",
-      "source": "voetbal",
-      "type": "knvb"
     },
     {
       "id": "cal_qxrmwe",
@@ -141,6 +130,17 @@
       "endTime": "22:00",
       "location": "Toekomst, de Westdijk 14 3752AE BUNSCHOTEN-SPAKENBURG",
       "description": "Topklasse A",
+      "source": "voetbal",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_u9mwxd",
+      "title": "zvv DOS'58 2-IJsselmeervogels 1",
+      "date": "2026-11-27",
+      "time": "20:10",
+      "endTime": "22:10",
+      "location": "OVVO Hal Amsterdamsestraatweg 2 3604AA MAARSSEN",
+      "description": "Mannen Futsal beker 2e ronde Groep 1 A",
       "source": "voetbal",
       "type": "knvb"
     },
