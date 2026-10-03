@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-10-02T10:56:21.337Z",
+  "lastUpdated": "2026-10-03T10:15:55.765Z",
   "events": [
     {
       "id": "cal_qxrmwe",
@@ -11,17 +11,6 @@
       "description": "Reminder",
       "source": "srza",
       "type": "srza"
-    },
-    {
-      "id": "cal_ipjz55",
-      "title": "Olympia Haarlem 1-IJsselmeervogels 1",
-      "date": "2026-10-02",
-      "time": "21:05",
-      "endTime": "23:05",
-      "location": "Turnhouthal, van Henk van Turnhoutpad 1 2034JL HAARLEM",
-      "description": "Topklasse A",
-      "source": "voetbal",
-      "type": "knvb"
     },
     {
       "id": "cal_tx25ko",
