@@ -1,17 +1,6 @@
 {
-  "lastUpdated": "2026-10-06T11:51:05.831Z",
+  "lastUpdated": "2026-10-07T11:36:08.379Z",
   "events": [
-    {
-      "id": "cal_qxrmwe",
-      "title": "WEDDINGCARS BY DK - JOGA BONITO",
-      "date": "2026-09-29",
-      "time": "22:30",
-      "endTime": "23:10",
-      "location": "Sporthal: BUITEN",
-      "description": "Reminder",
-      "source": "srza",
-      "type": "srza"
-    },
     {
       "id": "cal_tx25ko",
       "title": "AS SPORT EVENTS - JOGA BONITO",
@@ -35,6 +24,17 @@
       "type": "knvb"
     },
     {
+      "id": "cal_ychae4",
+      "title": "#oefenwedstrijd VVIJV - Lesley Boys/ Hattrick Haarem",
+      "date": "2026-10-12",
+      "time": "20:00",
+      "endTime": "21:30",
+      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
+      "description": null,
+      "source": "icloud",
+      "type": "knvb"
+    },
+    {
       "id": "cal_h7rjys",
       "title": "TER LAAK BOOMVERZORGING - JOGA BONITO",
       "date": "2026-10-26",
@@ -49,8 +49,8 @@
       "id": "cal_c6rvc7",
       "title": "Onside Amsterdam 1-IJsselmeervogels 1",
       "date": "2026-10-30",
-      "time": "21:05",
-      "endTime": "23:05",
+      "time": "20:55",
+      "endTime": "22:55",
       "location": "Caland Sportcentrum Eliza van Calcarstraat 2 1068RR AMSTERDAM",
       "description": "Topklasse A",
       "source": "voetbal",
