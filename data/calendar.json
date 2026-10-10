@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-10-09T11:42:29.630Z",
+  "lastUpdated": "2026-10-10T11:00:58.934Z",
   "events": [
     {
       "id": "cal_tx25ko",
@@ -11,17 +11,6 @@
       "description": "Reminder",
       "source": "srza",
       "type": "srza"
-    },
-    {
-      "id": "cal_vag0aw",
-      "title": "IJsselmeervogels 1-VVS 46 1",
-      "date": "2026-10-09",
-      "time": "20:00",
-      "endTime": "22:00",
-      "location": "Toekomst, de Westdijk 14 3752AE BUNSCHOTEN-SPAKENBURG",
-      "description": "Topklasse A",
-      "source": "voetbal",
-      "type": "knvb"
     },
     {
       "id": "cal_ychae4",
