@@ -1,10 +1,21 @@
 {
-  "lastUpdated": "2026-10-15T09:40:10.294Z",
+  "lastUpdated": "2026-10-16T09:33:31.896Z",
   "events": [
     {
       "id": "cal_ychae4",
       "title": "#oefenwedstrijd VVIJV - Lesley Boys/ Hattrick Haarem",
       "date": "2026-10-12",
+      "time": "20:00",
+      "endTime": "21:30",
+      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
+      "description": null,
+      "source": "icloud",
+      "type": "knvb"
+    },
+    {
+      "id": "cal_g8nxot",
+      "title": "#oefenwedstrijd VVIJV - Amersfoortse Boys",
+      "date": "2026-10-23",
       "time": "20:00",
       "endTime": "21:30",
       "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
