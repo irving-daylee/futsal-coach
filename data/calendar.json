@@ -1,17 +1,6 @@
 {
-  "lastUpdated": "2026-10-23T09:47:05.336Z",
+  "lastUpdated": "2026-10-24T09:20:21.300Z",
   "events": [
-    {
-      "id": "cal_g8nxot",
-      "title": "#oefenwedstrijd VVIJV - Amersfoortse Boys",
-      "date": "2026-10-23",
-      "time": "20:00",
-      "endTime": "22:00",
-      "location": "Sportpark De Bokkeduinen, Barchman Wuytierslaan 95, 3819 AB Amersfoort, Netherlands",
-      "description": null,
-      "source": "icloud",
-      "type": "knvb"
-    },
     {
       "id": "cal_h7rjys",
       "title": "TER LAAK BOOMVERZORGING - JOGA BONITO",
@@ -22,6 +11,17 @@
       "description": "Reminder",
       "source": "srza",
       "type": "srza"
+    },
+    {
+      "id": "cal_vh9sfi",
+      "title": "#training VVIJ Futsal",
+      "date": "2026-10-28",
+      "time": "19:30",
+      "endTime": "21:00",
+      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
+      "description": null,
+      "source": "icloud",
+      "type": "training"
     },
     {
       "id": "cal_c6rvc7",
