@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-10-27T10:15:39.926Z",
+  "lastUpdated": "2026-10-28T11:05:28.043Z",
   "events": [
     {
       "id": "cal_h7rjys",
@@ -99,6 +99,17 @@
       "description": "Mannen Futsal beker 2e ronde Groep 1 A",
       "source": "voetbal",
       "type": "knvb"
+    },
+    {
+      "id": "cal_otlvqt",
+      "title": "JOGA BONITO - TANDMERE CITY",
+      "date": "2026-12-02",
+      "time": "19:00",
+      "endTime": "19:40",
+      "location": "Sporthal: WATERWIJK",
+      "description": "Reminder",
+      "source": "srza",
+      "type": "srza"
     },
     {
       "id": "cal_1n6ne8",
