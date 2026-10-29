@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-10-28T11:05:28.043Z",
+  "lastUpdated": "2026-10-29T11:21:07.625Z",
   "events": [
     {
       "id": "cal_h7rjys",
@@ -11,17 +11,6 @@
       "description": "Reminder",
       "source": "srza",
       "type": "srza"
-    },
-    {
-      "id": "cal_vh9sfi",
-      "title": "#training VVIJ Futsal",
-      "date": "2026-10-28",
-      "time": "19:30",
-      "endTime": "21:00",
-      "location": "Sporthal De Toekomst, Westdijk 14, 3752 AE Spakenburg, Nederland",
-      "description": null,
-      "source": "icloud",
-      "type": "training"
     },
     {
       "id": "cal_c6rvc7",
@@ -326,7 +315,7 @@
       "date": "2027-04-02",
       "time": "19:50",
       "endTime": "21:50",
-      "location": "Groeneweg Wilgenlaan 1 A 1741ZP SCHAGEN",
+      "location": "Spartahal Zuiderweg 2 A 1741NA SCHAGEN",
       "description": "Topklasse A",
       "source": "voetbal",
       "type": "knvb"
