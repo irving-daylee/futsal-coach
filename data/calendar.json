@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-11-06T12:45:38.337Z",
+  "lastUpdated": "2026-11-07T11:34:15.169Z",
   "events": [
     {
       "id": "cal_zc3gkk",
@@ -11,17 +11,6 @@
       "description": "Reminder",
       "source": "srza",
       "type": "srza"
-    },
-    {
-      "id": "cal_s28t9c",
-      "title": "IJsselmeervogels 1-FCZSW/FC ZAANSTREEK 1",
-      "date": "2026-11-06",
-      "time": "20:00",
-      "endTime": "22:00",
-      "location": "Toekomst, de Westdijk 14 3752AE BUNSCHOTEN-SPAKENBURG",
-      "description": "Topklasse A",
-      "source": "voetbal",
-      "type": "knvb"
     },
     {
       "id": "cal_rhndl",
